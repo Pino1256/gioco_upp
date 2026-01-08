@@ -1,8 +1,38 @@
 import arcade
+import random
+
+SCREEN_WIDTH = 600
+SCREEN_HEIGHT = 600
+
+class Enemy(arcade.Sprite):
+    def __init__(self):
+
+        super().__init__("./assetss/nemico.png", scale=0.09)
+
+        # Spawna su un bordo casuale dello schermo con un margine
+        self.margin = 50
+        self.edge = random.randint(0,3)
+
+
+        if self.edge == 0:  # alto
+            self.center_x = random.randint(self.margin, SCREEN_WIDTH - self.margin)
+            self.center_y = SCREEN_HEIGHT - self.margin
+        elif self.edge == 1:  # destra
+            self.center_x = SCREEN_WIDTH - self.margin
+            self.center_y = random.randint(self.margin, SCREEN_HEIGHT - self.margin)
+        elif self.edge == 2:  # basso
+            self.center_x = random.randint(self.margin, SCREEN_WIDTH - self.margin)
+            self.center_y = self.margin
+        elif self.edge == 3:  # sinistra
+            self.center_x = self.margin
+            self.center_y = random.randint(self.margin, SCREEN_HEIGHT - self.margin)
 
 class giocone(arcade.Window):
     def __init__(self, larghezza, altezza, titolo):
         super().__init__(larghezza, altezza, titolo)
+
+        self.nemico = None
+        self.lista_nemico = arcade.SpriteList()
 
         self.personaggio = None
         self.lista_personaggio = arcade.SpriteList()
@@ -15,6 +45,10 @@ class giocone(arcade.Window):
 
         self.velocita = 4
 
+        # Timer per lo spawn dei nemici
+        self.time_since_spawn = 0
+        self.spawn_rate = 2.0  # Un nemico ogni 5 secondi
+
         self.setup()
 
     def setup(self):
@@ -26,7 +60,9 @@ class giocone(arcade.Window):
         self.lista_personaggio.append(self.personaggio)
     
     def on_draw(self):
+
         self.clear()
+        self.lista_nemico.draw()
         self.lista_personaggio.draw()
 
     def on_update(self, delta_time):
@@ -53,6 +89,13 @@ class giocone(arcade.Window):
             self.personaggio.scale = (0.2, 0.2)
         elif change_x > 0:
             self.personaggio.scale = (-0.2, 0.2)
+
+        # Spawn dei nemici
+        self.time_since_spawn += delta_time
+        if self.time_since_spawn >= self.spawn_rate:
+            enemy = Enemy()
+            self.lista_nemico.append(enemy)
+            self.time_since_spawn = 0
 
     def on_key_press(self, tasto, modificatori):
 
