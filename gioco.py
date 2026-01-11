@@ -1,8 +1,10 @@
 import arcade
 import random
+import math
 
-SCREEN_WIDTH = 600
-SCREEN_HEIGHT = 600
+SCREEN_WIDTH = 1000
+SCREEN_HEIGHT = 800
+velocita_nemico = 2
 
 class Enemy(arcade.Sprite):
     def __init__(self):
@@ -12,7 +14,6 @@ class Enemy(arcade.Sprite):
         # Spawna su un bordo casuale dello schermo con un margine
         self.margin = 50
         self.edge = random.randint(0,3)
-
 
         if self.edge == 0:  # alto
             self.center_x = random.randint(self.margin, SCREEN_WIDTH - self.margin)
@@ -26,6 +27,16 @@ class Enemy(arcade.Sprite):
         elif self.edge == 3:  # sinistra
             self.center_x = self.margin
             self.center_y = random.randint(self.margin, SCREEN_HEIGHT - self.margin)
+
+    def movimento_verso_giocatore(self, player_x, player_y):
+        # calcola la direzione verso il personaggio
+        direzione_x = player_x - self.center_x
+        direzione_y = player_y - self.center_y
+        distanza = math.hypot(direzione_x,direzione_y) # calcola l'ipotenusa
+
+        if distanza > 0:
+            self.center_x += velocita_nemico * (direzione_x / distanza)
+            self.center_y += velocita_nemico * (direzione_y / distanza)
 
 class giocone(arcade.Window):
     def __init__(self, larghezza, altezza, titolo):
@@ -53,10 +64,10 @@ class giocone(arcade.Window):
 
     def setup(self):
 
-        self.personaggio = arcade.Sprite("./assetss/idle_000.png")
+        self.personaggio = arcade.Sprite("./assetss/persona.png")
         self.personaggio.center_x = 300
         self.personaggio.center_y = 100
-        self.personaggio.scale = 0.2
+        self.personaggio.scale = 0.09
         self.lista_personaggio.append(self.personaggio)
     
     def on_draw(self):
@@ -86,9 +97,9 @@ class giocone(arcade.Window):
         
         # Flip orizzontale in base alla direzione
         if change_x < 0: 
-            self.personaggio.scale = (0.2, 0.2)
+            self.personaggio.scale = (0.09, 0.09)
         elif change_x > 0:
-            self.personaggio.scale = (-0.2, 0.2)
+            self.personaggio.scale = (-0.09, 0.09)
 
         # Spawn dei nemici
         self.time_since_spawn += delta_time
@@ -96,6 +107,9 @@ class giocone(arcade.Window):
             enemy = Enemy()
             self.lista_nemico.append(enemy)
             self.time_since_spawn = 0
+        
+        for enemy in self.lista_nemico:
+            enemy.movimento_verso_giocatore(self.personaggio.center_x, self.personaggio.center_y)
 
     def on_key_press(self, tasto, modificatori):
 
@@ -123,7 +137,7 @@ class giocone(arcade.Window):
 
 def main():
 
-    gioco = giocone(600, 600, "non è babbo")
+    gioco = giocone(SCREEN_WIDTH, SCREEN_HEIGHT, "non è babbo")
     arcade.run()
 
 if __name__ == "__main__":
