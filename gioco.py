@@ -12,7 +12,7 @@ class Enemy(arcade.Sprite):
         super().__init__("./assetss/nemico.png", scale=0.09)
 
         # Spawna su un bordo casuale dello schermo con un margine
-        self.margin = 50
+        self.margin = -50
         self.edge = random.randint(0,3)
 
         if self.edge == 0:  # alto
@@ -55,6 +55,7 @@ class giocone(arcade.Window):
         self.M_pressed = False
 
         self.velocita = 4
+        self.vita_personaggio= 5
 
         # Timer per lo spawn dei nemici
         self.time_since_spawn = 0
@@ -73,6 +74,7 @@ class giocone(arcade.Window):
     def on_draw(self):
 
         self.clear()
+        arcade.draw_text(f"vita: {self.vita_personaggio}", 10, SCREEN_HEIGHT -30, arcade.color.WHITE, 20)
         self.lista_nemico.draw()
         self.lista_personaggio.draw()
 
@@ -110,6 +112,16 @@ class giocone(arcade.Window):
         
         for enemy in self.lista_nemico:
             enemy.movimento_verso_giocatore(self.personaggio.center_x, self.personaggio.center_y)
+        
+        for enemy in self.lista_nemico[:]:
+
+            #controlla collisioni con il personaggio
+            if arcade.check_for_collision(enemy, self.personaggio):
+                self.vita_personaggio -= 1
+                enemy.kill()
+                if self.vita_personagsgio == 0:
+                    arcade.close_window()
+                    
 
     def on_key_press(self, tasto, modificatori):
 
