@@ -1,42 +1,10 @@
 import arcade
 import random
 import math
+from enemy import Enemy
 
-SCREEN_WIDTH = 1000
-SCREEN_HEIGHT = 800
-velocita_nemico = 2
-
-class Enemy(arcade.Sprite):
-    def __init__(self):
-
-        super().__init__("./assetss/nemico.png", scale=0.09)
-
-        # Spawna su un bordo casuale dello schermo con un margine
-        self.margin = -50
-        self.edge = random.randint(0,3)
-
-        if self.edge == 0:  # alto
-            self.center_x = random.randint(self.margin, SCREEN_WIDTH - self.margin)
-            self.center_y = SCREEN_HEIGHT - self.margin
-        elif self.edge == 1:  # destra
-            self.center_x = SCREEN_WIDTH - self.margin
-            self.center_y = random.randint(self.margin, SCREEN_HEIGHT - self.margin)
-        elif self.edge == 2:  # basso
-            self.center_x = random.randint(self.margin, SCREEN_WIDTH - self.margin)
-            self.center_y = self.margin
-        elif self.edge == 3:  # sinistra
-            self.center_x = self.margin
-            self.center_y = random.randint(self.margin, SCREEN_HEIGHT - self.margin)
-
-    def movimento_verso_giocatore(self, player_x, player_y):
-        # calcola la direzione verso il personaggio
-        direzione_x = player_x - self.center_x
-        direzione_y = player_y - self.center_y
-        distanza = math.hypot(direzione_x,direzione_y) # calcola l'ipotenusa
-
-        if distanza > 0:
-            self.center_x += velocita_nemico * (direzione_x / distanza)
-            self.center_y += velocita_nemico * (direzione_y / distanza)
+SCREEN_WIDTH = 700
+SCREEN_HEIGHT = 600
 
 class giocone(arcade.Window):
     def __init__(self, larghezza, altezza, titolo):
@@ -61,6 +29,9 @@ class giocone(arcade.Window):
         self.time_since_spawn = 0
         self.spawn_rate = 2.0  # Un nemico ogni 5 secondi
 
+        self.camera = arcade.camera.Camera2D()
+        self.ui_camera = arcade.camera.Camera2D()
+
         self.setup()
 
     def setup(self):
@@ -68,22 +39,27 @@ class giocone(arcade.Window):
         self.personaggio = arcade.Sprite("./assetss/persona.png")
         self.personaggio.center_x = 300
         self.personaggio.center_y = 100
-        self.personaggio.scale = 0.09
+        self.personaggio.scale = 0.08
         self.lista_personaggio.append(self.personaggio)
     
     def on_draw(self):
 
         self.clear()
-        arcade.draw_text(f"vita: {self.vita_personaggio}", 10, SCREEN_HEIGHT -30, arcade.color.WHITE, 20)
+
+        self.camera.use()
         self.lista_nemico.draw()
         self.lista_personaggio.draw()
+
+        self.ui_camera.use()
+        arcade.draw_text(f"vita: {self.vita_personaggio}", 10, SCREEN_HEIGHT - 30, arcade.color.WHITE, 20)
+
 
     def on_update(self, delta_time):
 
         # Calcola movimento in base ai tasti premuti
         change_x = 0
         change_y = 0
-        
+ 
         if self.up_pressed:
             change_y += self.velocita
         if self.down_pressed:
@@ -99,9 +75,9 @@ class giocone(arcade.Window):
         
         # Flip orizzontale in base alla direzione
         if change_x < 0: 
-            self.personaggio.scale = (0.09, 0.09)
+            self.personaggio.scale = (0.08, 0.08)
         elif change_x > 0:
-            self.personaggio.scale = (-0.09, 0.09)
+            self.personaggio.scale = (-0.08, 0.08)
 
         # Spawn dei nemici
         self.time_since_spawn += delta_time
@@ -119,9 +95,10 @@ class giocone(arcade.Window):
             if arcade.check_for_collision(enemy, self.personaggio):
                 self.vita_personaggio -= 1
                 enemy.kill()
-                if self.vita_personagsgio == 0:
+                if self.vita_personaggio == 0:
                     arcade.close_window()
-                    
+        
+        self.camera.position = self.personaggio.center_x, self.personaggio.center_y                
 
     def on_key_press(self, tasto, modificatori):
 
@@ -133,7 +110,8 @@ class giocone(arcade.Window):
             self.left_pressed = True
         elif tasto in (arcade.key.RIGHT, arcade.key.D):
             self.right_pressed = True
-    
+        #elif tasto in (arcade.key.)
+        
     def on_key_release(self, tasto, modificatori):
 
         """Gestisce il rilascio dei tasti"""
@@ -146,6 +124,7 @@ class giocone(arcade.Window):
             self.left_pressed = False
         elif tasto in (arcade.key.RIGHT, arcade.key.D):
             self.right_pressed = False
+    
 
 def main():
 
