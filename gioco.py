@@ -30,7 +30,9 @@ class giocone(arcade.Window):
         self.spawn_rate = 2.0  # Un nemico ogni 5 secondi
 
         self.camera = arcade.camera.Camera2D()
+
         self.ui_camera = arcade.camera.Camera2D()
+
 
         self.setup()
 
@@ -50,8 +52,10 @@ class giocone(arcade.Window):
         self.lista_nemico.draw()
         self.lista_personaggio.draw()
 
+
         self.ui_camera.use()
         arcade.draw_text(f"vita: {self.vita_personaggio}", 10, SCREEN_HEIGHT - 30, arcade.color.WHITE, 20)
+
 
 
     def on_update(self, delta_time):
@@ -59,7 +63,10 @@ class giocone(arcade.Window):
         # Calcola movimento in base ai tasti premuti
         change_x = 0
         change_y = 0
+
+
  
+
         if self.up_pressed:
             change_y += self.velocita
         if self.down_pressed:
@@ -98,7 +105,9 @@ class giocone(arcade.Window):
                 if self.vita_personaggio == 0:
                     arcade.close_window()
         
+
         self.camera.position = self.personaggio.center_x, self.personaggio.center_y                
+
 
     def on_key_press(self, tasto, modificatori):
 
