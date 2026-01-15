@@ -16,6 +16,13 @@ class giocone(arcade.Window):
         self.personaggio = None
         self.lista_personaggio = arcade.SpriteList()
 
+        # alcune cose di bomba
+        self.c4 = None
+        self.lista_bomba = arcade.SpriteList()
+        self.quantita_bombe = 0
+        self.bomba_spawn = False
+
+        # movimento
         self.up_pressed = False
         self.down_pressed = False
         self.left_pressed = False
@@ -36,7 +43,7 @@ class giocone(arcade.Window):
 
         self.setup()
 
-    def setup(self):
+    def setup(self): # player
 
         self.personaggio = arcade.Sprite("./assetss/persona.png")
         self.personaggio.center_x = 300
@@ -44,9 +51,21 @@ class giocone(arcade.Window):
         self.personaggio.scale = 0.08
         self.lista_personaggio.append(self.personaggio)
     
+    def bomba(self): # abilita del player bomba
+
+        self.c4 = arcade.Sprite("./assetss/bomb.png")
+        self.c4.center_x = self.personaggio.center_x
+        self.c4.center_y = self.personaggio.center_y
+        self.c4.scale = 1.0
+        self.lista_bomba.append(self.c4)
+            
     def on_draw(self):
 
         self.clear()
+
+        if (self.bomba_spawn == True) and (self.quantita_bombe == 0):
+            self.lista_bomba.draw()
+            self.quantita_bombe = 1
 
         self.camera.use()
         self.lista_nemico.draw()
@@ -63,9 +82,6 @@ class giocone(arcade.Window):
         # Calcola movimento in base ai tasti premuti
         change_x = 0
         change_y = 0
-
-
- 
 
         if self.up_pressed:
             change_y += self.velocita
@@ -119,7 +135,8 @@ class giocone(arcade.Window):
             self.left_pressed = True
         elif tasto in (arcade.key.RIGHT, arcade.key.D):
             self.right_pressed = True
-        #elif tasto in (arcade.key.)
+        elif tasto == arcade.key.Z:
+            self.bomba_spawn = True
         
     def on_key_release(self, tasto, modificatori):
 
