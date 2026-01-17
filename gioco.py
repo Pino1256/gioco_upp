@@ -2,6 +2,7 @@ import arcade
 import random
 import math
 from enemy import Enemy
+import time
 
 SCREEN_WIDTH = 700
 SCREEN_HEIGHT = 600
@@ -10,6 +11,8 @@ class giocone(arcade.Window):
     def __init__(self, larghezza, altezza, titolo):
         super().__init__(larghezza, altezza, titolo)
 
+        arcade.set_background_color(arcade.color.WHITE)
+
         self.nemico = None
         self.lista_nemico = arcade.SpriteList()
 
@@ -17,10 +20,7 @@ class giocone(arcade.Window):
         self.lista_personaggio = arcade.SpriteList()
 
         # alcune cose di bomba
-        self.c4 = None
         self.lista_bomba = arcade.SpriteList()
-        self.quantita_bombe = 0
-        self.bomba_spawn = False
 
         # movimento
         self.up_pressed = False
@@ -29,7 +29,7 @@ class giocone(arcade.Window):
         self.right_pressed = False
         self.M_pressed = False
 
-        self.velocita = 4
+        self.velocita = 5
         self.vita_personaggio= 5
 
         # Timer per lo spawn dei nemici
@@ -53,27 +53,24 @@ class giocone(arcade.Window):
     
     def bomba(self): # abilita del player bomba
 
-        self.c4 = arcade.Sprite("./assetss/bomb.png")
-        self.c4.center_x = self.personaggio.center_x
-        self.c4.center_y = self.personaggio.center_y
-        self.c4.scale = 1.0
-        self.lista_bomba.append(self.c4)
+        c4 = arcade.Sprite("./assetss/bomb.png")
+        c4.center_x = self.personaggio.center_x
+        c4.center_y = self.personaggio.center_y
+        c4.time_created = time.time()
+        c4.scale = 0.3
+        self.lista_bomba.append(c4)
             
     def on_draw(self):
 
         self.clear()
 
-        if (self.bomba_spawn == True) and (self.quantita_bombe == 0):
-            self.lista_bomba.draw()
-            self.quantita_bombe = 1
-
         self.camera.use()
         self.lista_nemico.draw()
         self.lista_personaggio.draw()
-
+        self.lista_bomba.draw()
 
         self.ui_camera.use()
-        arcade.draw_text(f"vita: {self.vita_personaggio}", 10, SCREEN_HEIGHT - 30, arcade.color.WHITE, 20)
+        arcade.draw_text(f"vita: {self.vita_personaggio}", 10, SCREEN_HEIGHT - 30, arcade.color.BLACK, 20)
 
 
 
@@ -121,6 +118,15 @@ class giocone(arcade.Window):
                 if self.vita_personaggio == 0:
                     arcade.close_window()
         
+        tempo_attuale = time.time()
+
+        for c4 in self.lista_bomba:
+            if tempo_attuale - c4.time_created >= 3:
+                c4.remove_from_sprite_lists()
+                for enemy in self.lista_nemico[:]:
+                    distanza = arcade.get_distance_between_sprites(c4, enemy)
+                    if distanza <= 100:
+                        enemy.kill()
 
         self.camera.position = self.personaggio.center_x, self.personaggio.center_y                
 
@@ -136,7 +142,7 @@ class giocone(arcade.Window):
         elif tasto in (arcade.key.RIGHT, arcade.key.D):
             self.right_pressed = True
         elif tasto == arcade.key.Z:
-            self.bomba_spawn = True
+            self.bomba()
         
     def on_key_release(self, tasto, modificatori):
 
