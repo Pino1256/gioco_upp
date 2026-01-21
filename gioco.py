@@ -2,6 +2,7 @@ import arcade
 import random
 import math
 from enemy import Enemy
+from bullet import Bullet
 import time
 
 SCREEN_WIDTH = 700
@@ -15,6 +16,9 @@ class giocone(arcade.Window):
 
         self.nemico = None
         self.lista_nemico = arcade.SpriteList()
+
+        self.potere = None
+        self.lista_potere = arcade.SpriteList()
 
         self.personaggio = None
         self.lista_personaggio = arcade.SpriteList()
@@ -68,6 +72,7 @@ class giocone(arcade.Window):
         self.lista_nemico.draw()
         self.lista_personaggio.draw()
         self.lista_bomba.draw()
+        self.lista_potere.draw()
 
         self.ui_camera.use()
         arcade.draw_text(f"vita: {self.vita_personaggio}", 10, SCREEN_HEIGHT - 30, arcade.color.BLACK, 20)
@@ -117,15 +122,27 @@ class giocone(arcade.Window):
                 enemy.kill()
                 if self.vita_personaggio == 0:
                     arcade.close_window()
+
+        self.lista_potere.update()
         
         tempo_attuale = time.time()
 
+        for proiettile in self.lista_potere[:]:
+            for enemy in self.lista_nemico[:]:
+                if arcade.check_for_collision(proiettile, enemy):
+                    enemy.kill()
+                    proiettile.kill()
+
+        for self.potere in self.lista_bomba:
+            if arcade.check_for_collision(self.potere, enemy):
+                enemy.kill()
+
         for c4 in self.lista_bomba:
-            if tempo_attuale - c4.time_created >= 3:
+            if tempo_attuale - c4.time_created >= 2:
                 c4.remove_from_sprite_lists()
                 for enemy in self.lista_nemico[:]:
                     distanza = arcade.get_distance_between_sprites(c4, enemy)
-                    if distanza <= 100:
+                    if distanza <= 250:
                         enemy.kill()
 
         self.camera.position = self.personaggio.center_x, self.personaggio.center_y                
@@ -143,6 +160,11 @@ class giocone(arcade.Window):
             self.right_pressed = True
         elif tasto == arcade.key.Z:
             self.bomba()
+        elif tasto == arcade.key.Q:
+            self.Q_pressed = True
+            proiettile = Bullet(self.personaggio)
+            self.lista_potere.append(proiettile)
+            
         
     def on_key_release(self, tasto, modificatori):
 
@@ -156,7 +178,8 @@ class giocone(arcade.Window):
             self.left_pressed = False
         elif tasto in (arcade.key.RIGHT, arcade.key.D):
             self.right_pressed = False
-    
+        elif tasto == arcade.key.Q:
+            self.Q_pressed = False    
 
 def main():
 
