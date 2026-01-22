@@ -133,9 +133,10 @@ class giocone(arcade.Window):
                     enemy.kill()
                     proiettile.kill()
 
-        for self.potere in self.lista_bomba:
-            if arcade.check_for_collision(self.potere, enemy):
-                enemy.kill()
+        for bomba in self.lista_bomba[:]:
+            for enemy in self.lista_nemico[:]:
+                if arcade.check_for_collision(bomba, enemy):
+                    enemy.kill()
 
         for c4 in self.lista_bomba:
             if tempo_attuale - c4.time_created >= 2:
