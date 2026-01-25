@@ -3,6 +3,7 @@ import random
 import math
 from enemy import Enemy
 from bullet import Bullet
+from enemy_2 import Enemy_2
 import time
 
 SCREEN_WIDTH = 700
@@ -16,6 +17,9 @@ class giocone(arcade.Window):
 
         self.nemico = None
         self.lista_nemico = arcade.SpriteList()
+
+        self.pipistrello = None
+        self.lista_pipistrello = arcade.SpriteList()
 
         self.potere = None
         self.lista_potere = arcade.SpriteList()
@@ -38,7 +42,9 @@ class giocone(arcade.Window):
 
         # Timer per lo spawn dei nemici
         self.time_since_spawn = 0
-        self.spawn_rate = 2.0  # Un nemico ogni 5 secondi
+        self.time_since_spawn_2 = 0
+        self.spawn_rate = 5.0  # Un nemico ogni 5 secondi
+        self.spawn_rate_2 = 2.0 #un pipistrello ogni 2 secondi
 
         self.camera = arcade.camera.Camera2D()
 
@@ -71,6 +77,7 @@ class giocone(arcade.Window):
         self.camera.use()
         self.lista_nemico.draw()
         self.lista_personaggio.draw()
+        self.lista_pipistrello.draw()
         self.lista_bomba.draw()
         self.lista_potere.draw()
 
@@ -104,15 +111,25 @@ class giocone(arcade.Window):
         elif change_x > 0:
             self.personaggio.scale = (-0.08, 0.08)
 
-        # Spawn dei nemici
+        # Spawn dei nemici 1
         self.time_since_spawn += delta_time
         if self.time_since_spawn >= self.spawn_rate:
             enemy = Enemy()
             self.lista_nemico.append(enemy)
             self.time_since_spawn = 0
+
+        # Spawn dei nemici 2
+        self.time_since_spawn_2 += delta_time
+        if self.time_since_spawn_2 >= self.spawn_rate:
+            enemy_2 = Enemy_2()
+            self.lista_pipistrello.append(enemy_2)
+            self.time_since_spawn_2 = 0
         
         for enemy in self.lista_nemico:
             enemy.movimento_verso_giocatore(self.personaggio.center_x, self.personaggio.center_y)
+
+        for enemy_2 in self.lista_pipistrello:
+            enemy_2.movimento_verso_giocatore(self.personaggio.center_x, self.personaggio.center_y)
         
         for enemy in self.lista_nemico[:]:
 
