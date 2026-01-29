@@ -56,7 +56,7 @@ class giocone(arcade.Window):
 
         self.ui_camera = arcade.camera.Camera2D()
 
-        self.barra_vita = BarraVita(max_health=100, x=20, y=self.height - 40)
+        self.barra_vita = BarraVita(max_health=100, x=20, y=self.height - 25)
 
         self.setup()
 
@@ -88,8 +88,8 @@ class giocone(arcade.Window):
         self.lista_bomba.draw()
         self.lista_potere.draw()
 
-        self.ui_camera.use()
-        arcade.draw_text(f"vita: {self.vita_personaggio}", 10, SCREEN_HEIGHT - 30, arcade.color.BLACK, 20)
+        #self.ui_camera.use()
+        #arcade.draw_text(f"vita: {self.vita_personaggio}", 10, SCREEN_HEIGHT - 30, arcade.color.BLACK, 20)
 
         self.ui_camera.use()
         arcade.draw_text(f"punteggio: {self.nemici_morti}", 10, SCREEN_HEIGHT - 50, arcade.color.BLACK, 20)
