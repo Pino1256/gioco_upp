@@ -5,6 +5,7 @@ from enemy import Enemy
 from bullet import Bullet
 from enemy_2 import Enemy_2
 import time
+from barra_vita import BarraVita
 
 SCREEN_WIDTH = 700
 SCREEN_HEIGHT = 600
@@ -43,7 +44,7 @@ class giocone(arcade.Window):
         self.M_pressed = False
 
         self.velocita = 5
-        self.vita_personaggio= 5
+        self.vita_personaggio = 100
 
         # Timer per lo spawn dei nemici
         self.time_since_spawn = 0
@@ -54,6 +55,8 @@ class giocone(arcade.Window):
         self.camera = arcade.camera.Camera2D()
 
         self.ui_camera = arcade.camera.Camera2D()
+
+        self.barra_vita = BarraVita(max_health=100, x=20, y=self.height - 40)
 
         self.setup()
 
@@ -93,6 +96,10 @@ class giocone(arcade.Window):
 
         self.ui_camera.use()
         arcade.draw_text(f"livello: {self.livello_personaggio}", 10, SCREEN_HEIGHT - 70, arcade.color.BLACK, 20)
+
+        self.ui_camera.use()
+        self.barra_vita.draw_health_bar()
+        self.barra_vita.draw_health_number()
 
 
 
@@ -152,6 +159,8 @@ class giocone(arcade.Window):
         for enemy_2 in self.lista_pipistrello:
             enemy_2.movimento_verso_giocatore(self.personaggio.center_x, self.personaggio.center_y)
         
+        self.barra_vita.cur_health = self.vita_personaggio
+
         for enemy in self.lista_nemico[:]:
 
             #controlla collisioni con il personaggio
