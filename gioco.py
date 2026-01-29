@@ -165,7 +165,7 @@ class giocone(arcade.Window):
 
             #controlla collisioni con il personaggio
             if arcade.check_for_collision(enemy, self.personaggio):
-                self.vita_personaggio -= 1
+                self.vita_personaggio -= 5
                 enemy.kill()
                 self.nemici_morti += 1
                 if self.vita_personaggio == 0:
