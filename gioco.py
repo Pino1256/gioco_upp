@@ -6,6 +6,7 @@ from bullet import Bullet
 from enemy_2 import Enemy_2
 import time
 from barra_vita import BarraVita
+from esperienza import Exp
 
 SCREEN_WIDTH = 700
 SCREEN_HEIGHT = 600
@@ -56,7 +57,9 @@ class giocone(arcade.Window):
 
         self.ui_camera = arcade.camera.Camera2D()
 
-        self.barra_vita = BarraVita(max_health=100, x=20, y=self.height - 25)
+        self.barra_vita = BarraVita(max_health=100, x=515, y=self.height - 25)
+
+        self.exp = Exp(max_exp= 10, x = 10, y = self.height - 25)
 
         self.setup()
 
@@ -100,6 +103,10 @@ class giocone(arcade.Window):
         self.ui_camera.use()
         self.barra_vita.draw_health_bar()
         self.barra_vita.draw_health_number()
+
+        self.ui_camera.use()
+        self.exp.draw_exp_bar()
+        self.exp.draw_exp_number()
 
 
 
