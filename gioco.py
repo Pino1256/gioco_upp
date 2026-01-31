@@ -155,7 +155,7 @@ class giocone(arcade.Window):
 
         # Spawn dei nemici 2
         self.time_since_spawn_2 += delta_time
-        if self.time_since_spawn_2 >= self.spawn_rate_2:
+        if (self.livello_personaggio == 10) and (self.time_since_spawn_2 >= self.spawn_rate_2):
             enemy_2 = Enemy_2()
             self.lista_pipistrello.append(enemy_2)
             self.time_since_spawn_2 = 0
@@ -168,12 +168,24 @@ class giocone(arcade.Window):
         
         self.barra_vita.cur_health = self.vita_personaggio
 
+        self.exp.cur_exp = self.livello_personaggio
+
         for enemy in self.lista_nemico[:]:
 
             #controlla collisioni con il personaggio
             if arcade.check_for_collision(enemy, self.personaggio):
                 self.vita_personaggio -= 5
                 enemy.kill()
+                self.nemici_morti += 1
+                if self.vita_personaggio == 0:
+                    arcade.close_window()
+
+        for pipistrello in self.lista_pipistrello[:]:
+
+            #controlla collisioni con il personaggio
+            if arcade.check_for_collision(pipistrello, self.personaggio):
+                self.vita_personaggio -= 5
+                pipistrello.kill()
                 self.nemici_morti += 1
                 if self.vita_personaggio == 0:
                     arcade.close_window()
