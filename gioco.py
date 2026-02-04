@@ -7,6 +7,12 @@ from enemy_2 import Enemy_2
 import time
 from barra_vita import BarraVita
 from esperienza import Exp
+from arcade.gui import (
+    UIManager, 
+    UITextureButton, 
+    UIAnchorLayout, 
+    UIView
+)
 
 SCREEN_WIDTH = 700
 SCREEN_HEIGHT = 600
@@ -33,6 +39,9 @@ class giocone(arcade.Window):
         self.lista_personaggio = arcade.SpriteList()
         self.livello_personaggio: int = 1
         self.livello: int = 2
+
+        self.start_sprite = None
+        self.lista_tasto_play = arcade.SpriteList()
 
         # alcune cose di bomba
         self.lista_bomba = arcade.SpriteList()
@@ -61,6 +70,10 @@ class giocone(arcade.Window):
 
         self.exp = Exp(max_exp= 10, x = 10, y = self.height - 25)
 
+        self.game_started = False
+
+        self.bottone_play()
+
         self.setup()
 
     def setup(self): # player
@@ -70,6 +83,16 @@ class giocone(arcade.Window):
         self.personaggio.center_y = 100
         self.personaggio.scale = 0.08
         self.lista_personaggio.append(self.personaggio)
+
+    def bottone_play(self):
+        self.start_sprite = arcade.SpriteSolidColor(
+            width=300,
+            height=100,
+            color=arcade.color.BLACK
+        )
+        self.start_sprite.center_x = SCREEN_WIDTH // 2
+        self.start_sprite.center_y = SCREEN_HEIGHT // 2
+        self.lista_tasto_play.append(self.start_sprite)
     
     def bomba(self): # abilita del player bomba
 
@@ -83,6 +106,10 @@ class giocone(arcade.Window):
     def on_draw(self):
 
         self.clear()
+
+        if not self.game_started:
+            self.lista_tasto_play.draw()
+            return
 
         self.camera.use()
         self.lista_nemico.draw()
@@ -111,6 +138,9 @@ class giocone(arcade.Window):
 
 
     def on_update(self, delta_time):
+
+        if not self.game_started:
+            return
 
         # Calcola movimento in base ai tasti premuti
         change_x = 0
@@ -218,6 +248,10 @@ class giocone(arcade.Window):
 
         self.camera.position = self.personaggio.center_x, self.personaggio.center_y                
 
+    def on_mouse_press(self, x, y, button, modifiers):
+        if not self.game_started:
+            if self.start_sprite.collides_with_point((x, y)):
+                self.game_started = True
 
     def on_key_press(self, tasto, modificatori):
 
