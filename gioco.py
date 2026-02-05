@@ -10,7 +10,7 @@ from esperienza import Exp
 
 SCREEN_WIDTH = 700
 SCREEN_HEIGHT = 600
-
+#ss
 class giocone(arcade.Window):
     def __init__(self, larghezza, altezza, titolo):
         super().__init__(larghezza, altezza, titolo)
@@ -31,7 +31,7 @@ class giocone(arcade.Window):
 
         self.personaggio = None
         self.lista_personaggio = arcade.SpriteList()
-        self.livello_personaggio: int = 1
+        self.livello_personaggio: int = 10
         self.livello: int = 2
 
         # alcune cose di bomba
@@ -195,6 +195,13 @@ class giocone(arcade.Window):
         tempo_attuale = time.time()
 
         for proiettile in self.lista_potere[:]:
+
+            for pipistrello in self.lista_pipistrello[:]:
+                if arcade.check_for_collision(proiettile, pipistrello):
+                    pipistrello.kill()
+                    proiettile.kill()
+                    self.nemici_morti += 1
+
             for enemy in self.lista_nemico[:]:
                 if arcade.check_for_collision(proiettile, enemy):
                     enemy.kill()
@@ -202,6 +209,11 @@ class giocone(arcade.Window):
                     self.nemici_morti += 1
 
         for bomba in self.lista_bomba[:]:
+            for pipistrello in self.lista_pipistrello[:]:
+                if arcade.check_for_collision(bomba, pipistrello):
+                    pipistrello.kill()
+                    self.nemici_morti += 1
+
             for enemy in self.lista_nemico[:]:
                 if arcade.check_for_collision(bomba, enemy):
                     enemy.kill()
@@ -210,6 +222,13 @@ class giocone(arcade.Window):
         for c4 in self.lista_bomba:
             if tempo_attuale - c4.time_created >= 2:
                 c4.remove_from_sprite_lists()
+
+                for pipistrello in self.lista_pipistrello[:]:
+                    distanza = arcade.get_distance_between_sprites(c4, pipistrello)
+                    if arcade.check_for_collision(bomba, pipistrello):
+                        pipistrello.kill()
+                        self.nemici_morti += 1
+
                 for enemy in self.lista_nemico[:]:
                     distanza = arcade.get_distance_between_sprites(c4, enemy)
                     if distanza <= 250:
