@@ -16,7 +16,6 @@ from arcade.gui import (
 
 SCREEN_WIDTH = 700
 SCREEN_HEIGHT = 600
-#ss
 class giocone(arcade.Window):
     def __init__(self, larghezza, altezza, titolo):
         super().__init__(larghezza, altezza, titolo)
@@ -39,6 +38,7 @@ class giocone(arcade.Window):
         self.lista_personaggio = arcade.SpriteList()
         self.livello_personaggio: int = 10
         self.livello: int = 2
+        self.danno_personaggio: int = 10
 
         self.start_sprite = None
         self.lista_tasto_play = arcade.SpriteList()
@@ -70,8 +70,8 @@ class giocone(arcade.Window):
         self.spawn_rate = 5.0  # Un nemico ogni 5 secondi
         self.spawn_rate_2 = 2.0 #un pipistrello ogni 2 secondi
 
+        #camera
         self.camera = arcade.camera.Camera2D()
-
         self.ui_camera = arcade.camera.Camera2D()
 
         self.barra_vita = BarraVita(max_health=100, x=515, y=self.height - 25)
@@ -81,7 +81,6 @@ class giocone(arcade.Window):
         self.game_started = False
 
         self.bottone_play()
-
         self.setup()
 
     def setup(self): # player
@@ -201,11 +200,11 @@ class giocone(arcade.Window):
             self.time_since_spawn = 0
 
         # Spawn dei nemici 2
-        self.time_since_spawn_2 += delta_time
-        if (self.livello_personaggio >= 10) and (self.time_since_spawn_2 >= self.spawn_rate_2):
-            enemy_2 = Enemy_2()
-            self.lista_pipistrello.append(enemy_2)
-            self.time_since_spawn_2 = 0
+        # self.time_since_spawn_2 += delta_time
+        # if (self.livello_personaggio >= 10) and (self.time_since_spawn_2 >= self.spawn_rate_2):
+        #     enemy_2 = Enemy_2()
+        #     self.lista_pipistrello.append(enemy_2)
+        #     self.time_since_spawn_2 = 0
         
         # movimento dei nemici verso il giocatore
         for enemy in self.lista_nemico:
@@ -223,20 +222,22 @@ class giocone(arcade.Window):
             #controlla collisioni con il personaggio
             if arcade.check_for_collision(enemy, self.personaggio):
                 self.vita_personaggio -= 5
-                enemy.kill()
+                enemy.vita -= 10
+
+                if enemy.vita <= 0:
+                    enemy.kill
                 self.nemici_morti += 1
-                if self.vita_personaggio == 0:
-                    arcade.close_window()
 
         for pipistrello in self.lista_pipistrello[:]:
 
             #controlla collisioni con il personaggio
             if arcade.check_for_collision(pipistrello, self.personaggio):
                 self.vita_personaggio -= 5
-                pipistrello.kill()
+                enemy.vita -= 10
+
+                if enemy.vita <= 0:
+                    enemy.kill
                 self.nemici_morti += 1
-                if self.vita_personaggio == 0:
-                    arcade.close_window()
 
         self.lista_potere.update()
         
@@ -264,14 +265,20 @@ class giocone(arcade.Window):
 
             for pipistrello in self.lista_pipistrello[:]:
                 if arcade.check_for_collision(proiettile, pipistrello):
-                    pipistrello.kill()
+                    enemy.vita -= 10
+
+                    if enemy.vita <= 0:
+                        enemy.kill
                     proiettile.kill()
                     self.nemici_morti += 1
 
             for enemy in self.lista_nemico[:]:
                 if arcade.check_for_collision(proiettile, enemy):
                     enemy.kill()
-                    proiettile.kill()
+                    enemy.vita -= 10
+
+                    if enemy.vita <= 0:
+                        enemy.kill  
                     self.nemici_morti += 1
 
         # collisioni con la bomba 
@@ -293,16 +300,25 @@ class giocone(arcade.Window):
                 for pipistrello in self.lista_pipistrello[:]:
                     distanza = arcade.get_distance_between_sprites(c4, pipistrello)
                     if arcade.check_for_collision(bomba, pipistrello):
-                        pipistrello.kill()
+                        enemy.vita -= 10
+
+                        if enemy.vita <= 0:
+                            enemy.kill
                         self.nemici_morti += 1
 
                 for enemy in self.lista_nemico[:]:
                     distanza = arcade.get_distance_between_sprites(c4, enemy)
                     if distanza <= self.esplosione:
-                        enemy.kill()
+                        enemy.vita -= 10
+
+                        if enemy.vita <= 0:
+                            enemy.kill
                         self.nemici_morti += 1
                 
                 c4.remove_from_sprite_lists()
+        
+        if self.vita_personaggio == 0:
+            arcade.close_window()
 
         self.camera.position = self.personaggio.center_x, self.personaggio.center_y                
 
@@ -320,10 +336,7 @@ class giocone(arcade.Window):
         elif tasto in (arcade.key.LEFT, arcade.key.A):
             self.left_pressed = True
         elif tasto in (arcade.key.RIGHT, arcade.key.D):
-            self.right_pressed = True
-        elif tasto == arcade.key.Z:
-            self.bomba()
-            
+            self.right_pressed = True          
         
     def on_key_release(self, tasto, modificatori):
 
