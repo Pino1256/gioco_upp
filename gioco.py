@@ -36,7 +36,7 @@ class giocone(arcade.Window):
 
         self.personaggio = None
         self.lista_personaggio = arcade.SpriteList()
-        self.livello_personaggio: int = 10
+        self.livello_personaggio: int = 0
         self.livello: int = 2
         self.danno_personaggio: int = 10
 
@@ -69,6 +69,8 @@ class giocone(arcade.Window):
 
         self.spawn_rate = 5.0  # Un nemico ogni 5 secondi
         self.spawn_rate_2 = 2.0 #un pipistrello ogni 2 secondi
+
+        self.temp_per_spawn = 2 # livello per abbreviare lo spawn rate del nemicoi 1
 
         #camera
         self.camera = arcade.camera.Camera2D()
@@ -176,11 +178,19 @@ class giocone(arcade.Window):
         if self.nemici_morti >= self.nemici_da_killare:
             self.nemici_da_killare += 5
             self.livello_personaggio +=1
-            if self.temp_spawn_pot == 0.5:
-                self.quantita_pot += 1
-            else:
-                self.temp_spawn_pot -= 0.5
 
+            if self.spawn_rate > 0.5:
+                if self.livello_personaggio >= self.temp_per_spawn:
+                    self.temp_per_spawn += 2
+                    self.spawn_rate -= 0.5
+                
+            if not((self.temp_spawn_pot == 0.5) and (self.quantita_pot == 4)):
+                if self.temp_spawn_pot == 0.5:
+                    self.quantita_pot += 1
+                else:
+                    self.temp_spawn_pot -= 0.5
+
+                
             if self.temp_spawn_bomba == 0.5:
                 self.esplosione += 100 
             else:
@@ -197,14 +207,15 @@ class giocone(arcade.Window):
             for _ in range(self.numero_da_spawnare):
                 enemy = Enemy()
                 self.lista_nemico.append(enemy)
+                print (self.spawn_rate)
             self.time_since_spawn = 0
 
-        # Spawn dei nemici 2
-        # self.time_since_spawn_2 += delta_time
-        # if (self.livello_personaggio >= 10) and (self.time_since_spawn_2 >= self.spawn_rate_2):
-        #     enemy_2 = Enemy_2()
-        #     self.lista_pipistrello.append(enemy_2)
-        #     self.time_since_spawn_2 = 0
+        # #Spawn dei nemici 2
+        self.time_since_spawn_2 += delta_time
+        if (self.livello_personaggio >= 10) and (self.time_since_spawn_2 >= self.spawn_rate_2):
+            enemy_2 = Enemy_2()
+            self.lista_pipistrello.append(enemy_2)
+            self.time_since_spawn_2 = 0
         
         # movimento dei nemici verso il giocatore
         for enemy in self.lista_nemico:
@@ -225,7 +236,7 @@ class giocone(arcade.Window):
                 enemy.vita -= 10
 
                 if enemy.vita <= 0:
-                    enemy.kill
+                    enemy.kill()
                 self.nemici_morti += 1
 
         for pipistrello in self.lista_pipistrello[:]:
@@ -233,10 +244,10 @@ class giocone(arcade.Window):
             #controlla collisioni con il personaggio
             if arcade.check_for_collision(pipistrello, self.personaggio):
                 self.vita_personaggio -= 5
-                enemy.vita -= 10
+                pipistrello.vita -= 10
 
-                if enemy.vita <= 0:
-                    enemy.kill
+                if pipistrello.vita <= 0:
+                    pipistrello.kill
                 self.nemici_morti += 1
 
         self.lista_potere.update()
@@ -265,10 +276,10 @@ class giocone(arcade.Window):
 
             for pipistrello in self.lista_pipistrello[:]:
                 if arcade.check_for_collision(proiettile, pipistrello):
-                    enemy.vita -= 10
+                    pipistrello.vita -= 10
 
                     if enemy.vita <= 0:
-                        enemy.kill
+                        enemy.kill()
                     proiettile.kill()
                     self.nemici_morti += 1
 
@@ -278,7 +289,7 @@ class giocone(arcade.Window):
                     enemy.vita -= 10
 
                     if enemy.vita <= 0:
-                        enemy.kill  
+                        enemy.kill()
                     self.nemici_morti += 1
 
         # collisioni con la bomba 
@@ -303,7 +314,7 @@ class giocone(arcade.Window):
                         enemy.vita -= 10
 
                         if enemy.vita <= 0:
-                            enemy.kill
+                            enemy.kill()
                         self.nemici_morti += 1
 
                 for enemy in self.lista_nemico[:]:
@@ -312,7 +323,7 @@ class giocone(arcade.Window):
                         enemy.vita -= 10
 
                         if enemy.vita <= 0:
-                            enemy.kill
+                            enemy.kill()
                         self.nemici_morti += 1
                 
                 c4.remove_from_sprite_lists()
