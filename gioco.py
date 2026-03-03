@@ -134,6 +134,8 @@ class giocone(arcade.Window):
         self.lista_bomba.draw()
         self.lista_potere.draw()
         self.lista_boss1.draw()
+        for boss1 in self.lista_boss1:
+            boss1.barra_vita_boss.draw_health_bar()
 
         #self.ui_camera.use()
         #arcade.draw_text(f"vita: {self.vita_personaggio}", 10, SCREEN_HEIGHT - 30, arcade.color.BLACK, 20)
@@ -215,7 +217,6 @@ class giocone(arcade.Window):
             for _ in range(self.numero_da_spawnare):
                 enemy = Enemy()
                 self.lista_nemico.append(enemy)
-                print (self.spawn_rate)
             self.time_since_spawn = 0
 
         # #Spawn dei nemici 2
@@ -240,6 +241,7 @@ class giocone(arcade.Window):
         
         for boss1 in self.lista_boss1:
             boss1.movimento_verso_giocatore(self.personaggio.center_x, self.personaggio.center_y)
+            boss1.update_bar()
         
         self.barra_vita.cur_health = self.vita_personaggio
 
@@ -256,9 +258,9 @@ class giocone(arcade.Window):
                     enemy.kill()
                 self.nemici_morti += 1
 
+        #controlla collisioni con il personaggio
         for pipistrello in self.lista_pipistrello[:]:
 
-            #controlla collisioni con il personaggio
             if arcade.check_for_collision(pipistrello, self.personaggio):
                 self.vita_personaggio -= 5
                 pipistrello.vita -= 10
@@ -275,7 +277,6 @@ class giocone(arcade.Window):
 
         # spawn potere
         if self.potere_spawn >= self.temp_spawn_pot:
-            print(self.temp_spawn_pot)
             for _ in range(self.quantita_pot):
                 proiettile = Bullet(self.personaggio)
                 self.lista_potere.append(proiettile)
@@ -302,11 +303,19 @@ class giocone(arcade.Window):
 
             for enemy in self.lista_nemico[:]:
                 if arcade.check_for_collision(proiettile, enemy):
-                    enemy.kill()
                     enemy.vita -= 10
 
                     if enemy.vita <= 0:
                         enemy.kill()
+                    self.nemici_morti += 1
+            
+            for boss1 in self.lista_boss1[:]:
+                if arcade.check_for_collision(proiettile, boss1):
+                    boss1.vita -= 10
+                    boss1.take_damage(10)
+
+                    if boss1.vita <= 0:
+                        boss1.kill()
                     self.nemici_morti += 1
 
         # collisioni con la bomba 
