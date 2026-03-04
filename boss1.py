@@ -13,13 +13,15 @@ class Boss1(Enemy_general):
         self.barra_vita_boss = BarraVita(
             max_health=self.max_vita,
             x=self.center_x,
-            y=self.center_y + 60
+            y=self.center_y,
+            HEALTHBAR_WIDTH = 100,
+            HEALTHBAR_HEIGHT = 10
         )
 
     def update_bar(self):
         # La barra segue il boss
-        self.barra_vita_boss.x = self.center_x
-        self.barra_vita_boss.y = self.center_y + 60
+        self.barra_vita_boss.x = self.center_x - 50
+        self.barra_vita_boss.y = self.center_y + 80
         self.barra_vita_boss.cur_health = self.vita
 
     def take_damage(self, amount):

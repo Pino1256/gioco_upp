@@ -5,9 +5,11 @@ HEALTHBAR_HEIGHT = 20
 TEXT_OFFSET_Y = 5  # distanza del testo sopra la barra
 
 class BarraVita:
-    def __init__(self, max_health, x, y):
+    def __init__(self, max_health, x, y, HEALTHBAR_WIDTH, HEALTHBAR_HEIGHT):
         self.max_health = max_health
         self.cur_health = max_health
+        self.HEALTHBAR_WIDTH = HEALTHBAR_WIDTH
+        self.HEALTHBAR_HEIGHT = HEALTHBAR_HEIGHT
         self.x = x
         self.y = y
 
@@ -27,8 +29,8 @@ class BarraVita:
         arcade.draw_lbwh_rectangle_filled(
             self.x, 
             self.y, 
-            HEALTHBAR_WIDTH, 
-            HEALTHBAR_HEIGHT, 
+            self.HEALTHBAR_WIDTH, 
+            self.HEALTHBAR_HEIGHT, 
             arcade.color.RED
         )
 
@@ -36,7 +38,7 @@ class BarraVita:
         arcade.draw_lbwh_rectangle_filled(
             self.x, 
             self.y, 
-            HEALTHBAR_WIDTH * ratio, 
-            HEALTHBAR_HEIGHT, 
+            self.HEALTHBAR_WIDTH * ratio, 
+            self.HEALTHBAR_HEIGHT, 
             arcade.color.GREEN
         )
