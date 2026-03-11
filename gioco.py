@@ -87,10 +87,10 @@ class giocone(arcade.Window):
 
         self.exp = Exp(max_exp= 10, x = 10, y = self.height - 25)
 
-        self.game_started = False
+        # self.game_started = False
         self.spawn_boss1 = True
 
-        self.bottone_play()
+        # self.bottone_play()
         self.setup()
         
 
@@ -102,15 +102,15 @@ class giocone(arcade.Window):
         self.personaggio.scale = 0.08
         self.lista_personaggio.append(self.personaggio)
 
-    def bottone_play(self):
-        self.start_sprite = arcade.SpriteSolidColor(
-            width=300,
-            height=100,
-            color=arcade.color.BLACK
-        )
-        self.start_sprite.center_x = SCREEN_WIDTH // 2
-        self.start_sprite.center_y = SCREEN_HEIGHT // 2
-        self.lista_tasto_play.append(self.start_sprite)
+    # def bottone_play(self):
+    #     self.start_sprite = arcade.SpriteSolidColor(
+    #         width=300,
+    #         height=100,
+    #         color=arcade.color.BLACK
+    #     )
+    #     self.start_sprite.center_x = SCREEN_WIDTH // 2
+    #     self.start_sprite.center_y = SCREEN_HEIGHT // 2
+    #     self.lista_tasto_play.append(self.start_sprite)
     
     def bomba(self): # abilita del player bomba
 
@@ -125,9 +125,9 @@ class giocone(arcade.Window):
 
         self.clear()
 
-        if not self.game_started:
-            self.lista_tasto_play.draw()
-            return
+        # if not self.game_started:
+        #     self.lista_tasto_play.draw()
+        #     return
 
         self.camera.use()
         self.lista_nemico.draw()
@@ -160,8 +160,8 @@ class giocone(arcade.Window):
 
     def on_update(self, delta_time):
 
-        if not self.game_started:
-            return
+        # if not self.game_started:
+        #     return
 
         # Calcola movimento in base ai tasti premuti
         change_x = 0
@@ -271,11 +271,12 @@ class giocone(arcade.Window):
                     pipistrello.kill()
                 self.nemici_morti += 1
         
-        self.temp_danno_boss1 += 
+        self.temp_danno_boss1 += delta_time
         for boss1 in self.lista_boss1[:]:
             if arcade.check_for_collision(boss1, self.personaggio):
-                self.vita_personaggio -= 10
-                boss1.vita -= 10
+                if self.temp_danno_boss1 >= 1:
+                    self.vita_personaggio -= 10
+                    boss1.vita -= 10
 
                 if boss1.vita <= 0:
                     boss1.kill()
@@ -384,10 +385,10 @@ class giocone(arcade.Window):
 
         self.camera.position = self.personaggio.center_x, self.personaggio.center_y                
 
-    def on_mouse_press(self, x, y, button, modifiers):
-        if not self.game_started:
-            if self.start_sprite.collides_with_point((x, y)):
-                self.game_started = True
+    # def on_mouse_press(self, x, y, button, modifiers):
+    #     if not self.game_started:
+    #         if self.start_sprite.collides_with_point((x, y)):
+    #             self.game_started = True
 
     def on_key_press(self, tasto, modificatori):
 

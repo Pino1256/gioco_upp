@@ -40,5 +40,5 @@ class BarraVita:
             self.y, 
             self.HEALTHBAR_WIDTH * ratio, 
             self.HEALTHBAR_HEIGHT, 
-            arcade.color.GREEN
+            arcade.color.DARK_GREEN
         )
