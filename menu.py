@@ -1,5 +1,5 @@
 import arcade
-from gioco import gioconeVew
+
 
 class MenuView (arcade.View):
     def on_draw(self):
@@ -12,7 +12,8 @@ class MenuView (arcade.View):
     
     def on_key_press(self, key, modifiers):
         if key == arcade.key.RETURN:
+            from gameview import GameView
             # passo alla schermata di gioco
-            game_view = gioconeVew()
-            game_view.setup()
+            game_view = GameView()
+            # game_view.setup()
             self.window.show_view(game_view)
