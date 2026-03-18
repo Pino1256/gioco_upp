@@ -31,6 +31,8 @@ class GameView(arcade.View):
         self.numero_da_spawnare: int = 1
         self.nemici_morti: int = 0
         self.nemici_da_killare: int = 5
+        self.enemy_killati_per_exp: int = 0
+        self.exp_per_prossimo_livello: int = 5
 
         self.pipistrello = None
         self.lista_pipistrello = arcade.SpriteList()
@@ -43,7 +45,7 @@ class GameView(arcade.View):
 
         self.personaggio = None
         self.lista_personaggio = arcade.SpriteList()
-        self.livello_personaggio: int = 10
+        self.livello_personaggio: int = 0
         self.livello: int = 2
         self.danno_personaggio: int = 10
 
@@ -86,7 +88,7 @@ class GameView(arcade.View):
         self.ui_camera = arcade.camera.Camera2D()
 
         self.barra_vita = BarraVita(max_health=100, x=515, y=self.height - 25, HEALTHBAR_WIDTH = 170, HEALTHBAR_HEIGHT = 20)
-        self.exp = Exp(max_exp= 10, x = 10, y = self.height - 25)
+        self.exp = Exp(max_exp=self.exp_per_prossimo_livello, x = 10, y = self.height - 25)
 
         self.spawn_boss1 = True
 
@@ -168,9 +170,11 @@ class GameView(arcade.View):
             self.personaggio.scale = (-0.08, 0.08)
 
         #aumento del livello del personaggio
-        if self.nemici_morti >= self.nemici_da_killare:
-            self.nemici_da_killare += 5
+        if self.enemy_killati_per_exp >= self.exp_per_prossimo_livello:
             self.livello_personaggio +=1
+            self.enemy_killati_per_exp = 0
+            self.exp_per_prossimo_livello += 5
+            self.exp.max_exp = self.exp_per_prossimo_livello
 
             if self.spawn_rate > 0.5:
                 if self.livello_personaggio >= self.temp_per_spawn:
@@ -228,7 +232,7 @@ class GameView(arcade.View):
         
         self.barra_vita.cur_health = self.vita_personaggio
 
-        self.exp.cur_exp = self.livello_personaggio
+        self.exp.cur_exp = self.enemy_killati_per_exp #self.livello_personaggio
 
         for enemy in self.lista_nemico[:]:
 
@@ -240,6 +244,7 @@ class GameView(arcade.View):
                 if enemy.vita <= 0:
                     enemy.kill()
                 self.nemici_morti += 1
+                self.enemy_killati_per_exp += 1
 
         #controlla collisioni con il personaggio enemy 2
         for pipistrello in self.lista_pipistrello[:]:
@@ -251,17 +256,20 @@ class GameView(arcade.View):
                 if pipistrello.vita <= 0:
                     pipistrello.kill()
                 self.nemici_morti += 1
+                self.enemy_killati_per_exp += 1
         
         self.temp_danno_boss1 += delta_time
         for boss1 in self.lista_boss1[:]:
             if arcade.check_for_collision(boss1, self.personaggio):
                 if self.temp_danno_boss1 >= 1:
                     self.vita_personaggio -= 10
-                    boss1.vita -= 10
+                    self.temp_danno_boss1 = 0
+                    boss1.take_damage(10)
 
                 if boss1.vita <= 0:
                     boss1.kill()
-                self.nemici_morti += 10
+                    self.nemici_morti += 10
+                    self.enemy_killati_per_exp += 10                
 
 
         self.lista_potere.update()
@@ -295,6 +303,7 @@ class GameView(arcade.View):
                         pipistrello.kill()
                     proiettile.kill()
                     self.nemici_morti += 1
+                    self.enemy_killati_per_exp += 1
 
             for enemy in self.lista_nemico[:]:
                 if arcade.check_for_collision(proiettile, enemy):
@@ -304,6 +313,7 @@ class GameView(arcade.View):
                         enemy.kill()
                     proiettile.kill()
                     self.nemici_morti += 1
+                    self.enemy_killati_per_exp += 1
             
             for boss1 in self.lista_boss1[:]:
                 if arcade.check_for_collision(proiettile, boss1):
@@ -312,8 +322,14 @@ class GameView(arcade.View):
 
                     if boss1.vita <= 0:
                         boss1.kill()
+                        self.nemici_morti += 10
+                        self.enemy_killati_per_exp += 10   
                     proiettile.kill()
-                    self.nemici_morti += 1
+                    # if boss1.vita <= 0:
+                    #     boss1.kill()
+                    # proiettile.kill()
+                    # self.nemici_morti += 10
+                    # self.enemy_killati_per_exp += 10
 
         #esplosione bomba
         for c4 in self.lista_bomba:
@@ -328,6 +344,7 @@ class GameView(arcade.View):
                         if pipistrello.vita <= 0:
                             pipistrello.kill()
                         self.nemici_morti += 1
+                        self.enemy_killati_per_exp += 1
 
                 for enemy in self.lista_nemico[:]:
                     distanza = arcade.get_distance_between_sprites(c4, enemy)
@@ -337,6 +354,7 @@ class GameView(arcade.View):
                         if enemy.vita <= 0:
                             enemy.kill()
                         self.nemici_morti += 1
+                        self.enemy_killati_per_exp += 1
 
                 for boss1 in self.lista_boss1[:]:
                     distanza = arcade.get_distance_between_sprites(c4, boss1)
@@ -346,6 +364,7 @@ class GameView(arcade.View):
                         if boss1.vita <= 0:
                             boss1.kill()
                         self.nemici_morti += 10
+                        self.enemy_killati_per_exp += 10
 
                 c4.remove_from_sprite_lists()
         

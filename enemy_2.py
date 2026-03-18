@@ -1,5 +1,6 @@
 import arcade
 from nemico_globale import Enemy_general
+from gameview import GameView
 
 class Enemy_2(Enemy_general):
     def __init__(self):
