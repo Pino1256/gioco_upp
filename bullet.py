@@ -8,7 +8,7 @@ SCREEN_HEIGHT = 600
 
 class Bullet(arcade.Sprite):
     def __init__ (self, player):
-        super().__init__("./assetss/power.png", scale = 0.2)
+        super().__init__("./assetss/power.png", scale = 0.1)
 
         self.center_x = player.center_x
         self.center_y = player.center_y

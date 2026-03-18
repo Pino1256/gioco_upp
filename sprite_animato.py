@@ -3,12 +3,12 @@ import arcade
 class SpriteAnimato(arcade.Sprite):
     def __init__(self, scala: float = 1.0):
         super().__init__(scale=scala)
-        self.animazioni = {}
+        self.animazioni = {}          # nome -> dizionario con textures, durata_frame, loop
         self.animazione_corrente = None
         self.animazione_default = None
         self.tempo_frame = 0.0
         self.indice_frame = 0
-    
+
     def aggiungi_animazione(
         self,
         nome: str,
@@ -37,9 +37,8 @@ class SpriteAnimato(arcade.Sprite):
             columns=colonne,
             count=offset + num_frame,
         )
-    
         self._registra(nome, tutti[offset:], durata, loop, default)
-    
+
     def _registra(self, nome, textures, durata, loop, default=False):
         """Usato internamente per registrare texture già caricate."""
         self.animazioni[nome] = {
@@ -47,23 +46,22 @@ class SpriteAnimato(arcade.Sprite):
             "durata_frame": durata / len(textures),
             "loop": loop,
         }
-
         if default or self.animazione_default is None:
             self.animazione_default = nome
         if self.animazione_corrente is None:
             self._vai(nome)
-        
+
     def imposta_animazione(self, nome: str):
         """Cambia animazione (ignorata se è già quella attiva, evita reset del frame)."""
         if nome != self.animazione_corrente:
             self._vai(nome)
-    
+
     def _vai(self, nome: str):
         self.animazione_corrente = nome
         self.indice_frame = 0
         self.tempo_frame = 0.0
         self.texture = self.animazioni[nome]["textures"][0]
-    
+
     def update_animation(self, delta_time: float = 1 / 60):
         anim = self.animazioni[self.animazione_corrente]
         self.tempo_frame += delta_time
@@ -86,4 +84,3 @@ class SpriteAnimato(arcade.Sprite):
             return
 
         self.texture = anim["textures"][self.indice_frame]
-

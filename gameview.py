@@ -5,7 +5,8 @@ import time
 
 from enemy import Enemy
 from bullet import Bullet
-from enemy_2 import Enemy_2
+
+from sprite_animato import SpriteAnimato
 from barra_vita import BarraVita
 from pausa import PauseView
 from boss1 import Boss1
@@ -19,6 +20,49 @@ from arcade.gui import (
 
 SCREEN_WIDTH = 700
 SCREEN_HEIGHT = 600
+
+class player(SpriteAnimato):
+    def __init__(self):
+        super().__init__(scala = 2.00)
+        file_animazioni = {
+            "su": "assetss/run_up.png",
+            "giu": "assetss/run_down.png",
+            "destra": "assetss/run_right.png",
+            "sinistra": "assetss/run_left.png"
+        }
+    
+        for dir, percorso in file_animazioni.items(): #dir = direzione
+            self.aggiungi_animazione(
+                nome = f"run_{dir}",
+                percorso = percorso,
+                frame_width = 96,
+                frame_height = 80,
+                num_frame = 8,
+                colonne = 8,
+                durata = 0.6,
+                riga = 0
+            )
+        
+        self.direzione = "giu"
+        self.change_x = 300
+        self.change_y = 100
+    
+    def update_animation(self, delta_time):
+        if self.change_y > 0:
+            self.direzione = "su"
+        elif self.change_y < 0:
+            self.direzione = "giu"
+        elif self.change_x > 0:
+            self.direzione = "destra"
+        elif self.change_x < 0:
+            self.direzione = "sinistra"
+
+        if self.change_x != 0 or self.change_y != 0:
+            self.imposta_animazione(f"run_{self.direzione}")
+        else:
+            self.texture = self.animazioni[f"run_{self.direzione}"]["textures"][0]
+
+        super().update_animation(delta_time)    
 
 class GameView(arcade.View):
     def __init__(self):
@@ -97,11 +141,9 @@ class GameView(arcade.View):
 
     def setup(self): # player
 
-        self.personaggio = arcade.Sprite("./assetss/persona.png")
-        self.personaggio.center_x = 300
-        self.personaggio.center_y = 100
-        self.personaggio.scale = 0.08
+        self.personaggio = player()
         self.lista_personaggio.append(self.personaggio)
+
     
     def bomba(self): # abilita del player bomba
 
@@ -147,27 +189,32 @@ class GameView(arcade.View):
     def on_update(self, delta_time):
 
         # Calcola movimento in base ai tasti premuti
-        change_x = 0
-        change_y = 0
+        cx = 0
+        cy = 0
+        # change_x = 0
+        # change_y = 0
 
-        if self.up_pressed:
-            change_y += self.velocita
-        if self.down_pressed:
-            change_y -= self.velocita
-        if self.left_pressed:
-            change_x -= self.velocita
-        if self.right_pressed:
-            change_x += self.velocita
+        self.lista_personaggio.update()           # Muove fisicamente il player nello schermo
+        self.personaggio.update_animation(delta_time) # Fa muovere le gambe al player
+
+        if self.up_pressed: cy += self.velocita
+            # change_y += self.velocita
+        if self.down_pressed: cy -= self.velocita
+            # change_y -= self.velocita
+        if self.left_pressed: cx -= self.velocita
+            # change_x -= self.velocita
+        if self.right_pressed: cx += self.velocita
+            # change_x += self.velocita
         
         # Applica movimento
-        self.personaggio.center_x += change_x
-        self.personaggio.center_y += change_y
+        self.personaggio.change_x = cx
+        self.personaggio.change_y = cy
         
         # Flip orizzontale in base alla direzione
-        if change_x < 0: 
-            self.personaggio.scale = (0.08, 0.08)
-        elif change_x > 0:
-            self.personaggio.scale = (-0.08, 0.08)
+        if cx < 0: 
+            self.personaggio.scale = 2.00
+        elif cy > 0:
+            self.personaggio.scale = 2.00
 
         #aumento del livello del personaggio
         if self.enemy_killati_per_exp >= self.exp_per_prossimo_livello:
@@ -209,6 +256,7 @@ class GameView(arcade.View):
         # #Spawn dei nemici 2
         self.time_since_spawn_2 += delta_time
         if (self.livello_personaggio >= 10) and (self.time_since_spawn_2 >= self.spawn_rate_2):
+            from enemy_2 import Enemy_2
             enemy_2 = Enemy_2()
             self.lista_pipistrello.append(enemy_2)
             self.time_since_spawn_2 = 0
