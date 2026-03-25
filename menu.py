@@ -15,5 +15,4 @@ class MenuView (arcade.View):
             from gameview import GameView
             # passo alla schermata di gioco
             game_view = GameView()
-            # game_view.setup()
             self.window.show_view(game_view)

@@ -9,6 +9,7 @@ from bullet import Bullet
 from sprite_animato import SpriteAnimato
 from barra_vita import BarraVita
 from pausa import PauseView
+from menuLVL import MenuLvlView
 from boss1 import Boss1
 from esperienza import Exp
 from arcade.gui import (
@@ -92,6 +93,7 @@ class GameView(arcade.View):
         self.livello_personaggio: int = 0
         self.livello: int = 2
         self.danno_personaggio: int = 10
+        self.lvl_proiettile = True
 
         self.start_sprite = None
         self.lista_tasto_play = arcade.SpriteList()
@@ -228,7 +230,7 @@ class GameView(arcade.View):
                     self.temp_per_spawn += 2
                     self.spawn_rate -= 0.5
                 
-            if not((self.temp_spawn_pot == 0.5) and (self.quantita_pot == 4)):
+            if not((self.temp_spawn_pot == 0.5) and (self.quantita_pot == 3)):
                 if self.temp_spawn_pot == 0.5:
                     self.quantita_pot += 1
                 else:
@@ -262,7 +264,7 @@ class GameView(arcade.View):
             self.time_since_spawn_2 = 0
 
         # #Spawn boss1
-        if (self.livello_personaggio >= 10) and (self.spawn_boss1 >= True ):
+        if (self.livello >= 10) and (self.spawn_boss1 >= True ):
             boss1 = Boss1()
             self.lista_boss1.append(boss1)
             self.spawn_boss1 = False
@@ -434,6 +436,9 @@ class GameView(arcade.View):
         elif tasto == arcade.key.ESCAPE:
             pausa = PauseView(self)
             self.window.show_view(pausa)
+        elif tasto == arcade.key.M:
+            menuLVL = MenuLvlView(self)
+            self.window.show_view(menuLVL)
         
     def on_key_release(self, tasto, modificatori):
 
