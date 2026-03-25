@@ -1,6 +1,12 @@
 import arcade
+from gameview import GameView
 
 class MenuLvlView (arcade.View):
+    def __init__(self, game_view):
+        super().__init__()
+        self.game_view = game_view #riferimento della partita in corso
+
+
     def on_draw(self):
         self.clear()
 
@@ -18,28 +24,23 @@ class MenuLvlView (arcade.View):
         
 
     def on_key_press(self, key, modifiers):
+        from gameview import GameView
         if key == arcade.key.Z:
-
-            # aggiungere +1 lvl del proiettile
-            self.window.lvl_proiettile +=1
-            from gameview import GameView
-            # passo alla schermata di gioco
-            game_view = GameView()
-            self.window.show_view(game_view)
+            if self.window.proiettile_lvl <= 7:
+                # aggiungere +1 lvl del proiettile
+                self.window.lvl_proiettile +=1
+                self.window.proiettile_lvl += 1
+            self.window.show_view(self.game_view)
 
         if key == arcade.key.X:
 
             # aggiungere +1 lvl della bomba
             self.window.lvl_bomba += 1
-            from gameview import GameView
-            game_view = GameView()
-            self.window.show_view(game_view)
+            self.window.show_view(self.game_view)
             
         if key == arcade.key.C:
 
             # aggiungere +1 lvl della corsa
             self.window.lvl_corsa += 1
-            from gameview import GameView
-            game_view = GameView()
-            self.window.show_view(game_view)
-
+            self.window.show_view(self.game_view)
+            

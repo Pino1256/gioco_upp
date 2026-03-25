@@ -8,8 +8,8 @@ from bullet import Bullet
 
 from sprite_animato import SpriteAnimato
 from barra_vita import BarraVita
-from pausa import PauseView
-from menuLVL import MenuLvlView
+# from pausa import PauseView
+#from menuLVL import MenuLvlView
 from boss1 import Boss1
 from esperienza import Exp
 from arcade.gui import (
@@ -40,7 +40,7 @@ class player(SpriteAnimato):
                 frame_height = 80,
                 num_frame = 8,
                 colonne = 8,
-                durata = 0.6,
+                durata = 1,
                 riga = 0
             )
         
@@ -71,6 +71,12 @@ class GameView(arcade.View):
 
         arcade.set_background_color(arcade.color.DARK_GREEN)
 
+        self.lvl_proiettile = 1
+        self.lvl_bomba = 1
+        self.lvl_corsa = 1
+        self.proiettile_lvl = 0
+
+
         self.nemico = None
         self.lista_nemico = arcade.SpriteList()
         self.numero_da_spawnare: int = 1
@@ -90,7 +96,7 @@ class GameView(arcade.View):
 
         self.personaggio = None
         self.lista_personaggio = arcade.SpriteList()
-        self.livello_personaggio: int = 0
+        self.livello_personaggio: int = 10
         self.livello: int = 2
         self.danno_personaggio: int = 10
         self.lvl_proiettile = True
@@ -193,20 +199,14 @@ class GameView(arcade.View):
         # Calcola movimento in base ai tasti premuti
         cx = 0
         cy = 0
-        # change_x = 0
-        # change_y = 0
 
         self.lista_personaggio.update()           # Muove fisicamente il player nello schermo
         self.personaggio.update_animation(delta_time) # Fa muovere le gambe al player
 
         if self.up_pressed: cy += self.velocita
-            # change_y += self.velocita
         if self.down_pressed: cy -= self.velocita
-            # change_y -= self.velocita
         if self.left_pressed: cx -= self.velocita
-            # change_x -= self.velocita
         if self.right_pressed: cx += self.velocita
-            # change_x += self.velocita
         
         # Applica movimento
         self.personaggio.change_x = cx
@@ -230,11 +230,14 @@ class GameView(arcade.View):
                     self.temp_per_spawn += 2
                     self.spawn_rate -= 0.5
                 
-            if not((self.temp_spawn_pot == 0.5) and (self.quantita_pot == 3)):
-                if self.temp_spawn_pot == 0.5:
-                    self.quantita_pot += 1
-                else:
-                    self.temp_spawn_pot -= 0.5
+            if self.lvl_proiettile == True:
+                if not((self.temp_spawn_pot == 0.5) and (self.quantita_pot == 3)):
+                    if self.temp_spawn_pot == 0.5:
+                        self.quantita_pot += 1
+                    else:
+                        self.temp_spawn_pot -= 0.5
+                
+                self.proiettile_lvl += 1
 
                 
             if self.temp_spawn_bomba == 0.5:
@@ -282,7 +285,7 @@ class GameView(arcade.View):
         
         self.barra_vita.cur_health = self.vita_personaggio
 
-        self.exp.cur_exp = self.enemy_killati_per_exp #self.livello_personaggio
+        self.exp.cur_exp = self.enemy_killati_per_exp 
 
         for enemy in self.lista_nemico[:]:
 
@@ -434,9 +437,11 @@ class GameView(arcade.View):
         elif tasto in (arcade.key.RIGHT, arcade.key.D):
             self.right_pressed = True          
         elif tasto == arcade.key.ESCAPE:
+            from pausa import PauseView
             pausa = PauseView(self)
             self.window.show_view(pausa)
         elif tasto == arcade.key.M:
+            from menuLVL import MenuLvlView
             menuLVL = MenuLvlView(self)
             self.window.show_view(menuLVL)
         
