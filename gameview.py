@@ -76,7 +76,6 @@ class GameView(arcade.View):
         self.lvl_corsa = 1
         self.proiettile_lvl = 0
 
-
         self.nemico = None
         self.lista_nemico = arcade.SpriteList()
         self.numero_da_spawnare: int = 1
@@ -99,7 +98,11 @@ class GameView(arcade.View):
         self.livello_personaggio: int = 10
         self.livello: int = 2
         self.danno_personaggio: int = 10
-        self.lvl_proiettile = True
+        self.logic_proiettile = False
+        self.logic_bomba = False
+        self.logic_corsa = False
+
+        self.spawn_bomba = False
 
         self.start_sprite = None
         self.lista_tasto_play = arcade.SpriteList()
@@ -220,31 +223,63 @@ class GameView(arcade.View):
 
         #aumento del livello del personaggio
         if self.enemy_killati_per_exp >= self.exp_per_prossimo_livello:
+
             self.livello_personaggio +=1
             self.enemy_killati_per_exp = 0
             self.exp_per_prossimo_livello += 5
             self.exp.max_exp = self.exp_per_prossimo_livello
+            from menuLVL import MenuLvlView
+            self.window.show_view(MenuLvlView(self))
 
             if self.spawn_rate > 0.5:
                 if self.livello_personaggio >= self.temp_per_spawn:
                     self.temp_per_spawn += 2
                     self.spawn_rate -= 0.5
+            
                 
-            if self.lvl_proiettile == True:
-                if not((self.temp_spawn_pot == 0.5) and (self.quantita_pot == 3)):
-                    if self.temp_spawn_pot == 0.5:
-                        self.quantita_pot += 1
-                    else:
-                        self.temp_spawn_pot -= 0.5
+            # if self.logic_proiettile == True:
+            #     if not((self.temp_spawn_pot == 0.5) and (self.quantita_pot == 3)):
+            #         if self.temp_spawn_pot == 0.5:
+            #             self.quantita_pot += 1
+            #             print("quantita proiettili spawnati",self.quantita_pot)
+            #         else:
+            #             self.temp_spawn_pot -= 0.5
+            #             print("tempo spawn pot",self.temp_spawn_pot)
                 
-                self.proiettile_lvl += 1
+            #     self.logic_proiettile =False
+            #     # self.proiettile_lvl += 1
 
                 
+            # if self.temp_spawn_bomba == 0.5:
+            #     self.esplosione += 100 
+            # else:
+            #     self.temp_spawn_bomba -= 0.5
+        
+        if self.livello_personaggio >= 5:
+            self.spawn_bomba = True
+
+        if self.logic_proiettile == True:
+            if not((self.temp_spawn_pot == 0.5) and (self.quantita_pot == 3)):
+                if self.temp_spawn_pot == 0.5:
+                    self.quantita_pot += 1
+                    print("quantita proiettili spawnati",self.quantita_pot)
+                else:
+                    self.temp_spawn_pot -= 0.5
+                    print("tempo spawn pot",self.temp_spawn_pot)
+                
+            self.logic_proiettile =False
+            # self.proiettile_lvl += 1
+
+        if self.logic_bomba == True and self.spawn_bomba == True:
             if self.temp_spawn_bomba == 0.5:
-                self.esplosione += 100 
+                self.esplosione += 100
+                print("esplosione", self.esplosione) 
             else:
                 self.temp_spawn_bomba -= 0.5
-
+                print("tempo spawn bomba", self.temp_spawn_bomba)
+            
+            self.logic_bomba = False
+            
         # Livello del personaggio + nemici in più
         if self.livello_personaggio == self.livello:
             self.livello = self.livello_personaggio + 2
@@ -266,7 +301,7 @@ class GameView(arcade.View):
             self.lista_pipistrello.append(enemy_2)
             self.time_since_spawn_2 = 0
 
-        # #Spawn boss1
+        #Spawn boss1
         if (self.livello >= 10) and (self.spawn_boss1 >= True ):
             boss1 = Boss1()
             self.lista_boss1.append(boss1)
@@ -341,9 +376,10 @@ class GameView(arcade.View):
         self.bomba_spawn += delta_time
 
         # spawn bomba
-        if self.bomba_spawn >= self.temp_spawn_bomba:
-            self.bomba()
-            self.bomba_spawn = 0
+        if self.spawn_bomba == True:
+            if self.bomba_spawn >= self.temp_spawn_bomba:
+                self.bomba()
+                self.bomba_spawn = 0
 
         # collisione con il proiettile
         for proiettile in self.lista_potere[:]:
