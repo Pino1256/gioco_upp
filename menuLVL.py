@@ -8,7 +8,6 @@ class MenuLvlView (arcade.View):
     def __init__(self, game_view):
         super().__init__()
         self.game_view = game_view #riferimento della partita in corso
-        arcade.set_background_color(arcade.color.DARK_RED)
 
 
     def on_draw(self):
