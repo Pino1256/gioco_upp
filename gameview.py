@@ -97,7 +97,7 @@ class GameView(arcade.View):
 
         self.personaggio = None
         self.lista_personaggio = arcade.SpriteList()
-        self.livello_personaggio: int = 1
+        self.livello_personaggio: int = 0
         self.livello: int = 2
         self.danno = 2
         self.danno_personaggio: int = 10
@@ -212,6 +212,7 @@ class GameView(arcade.View):
         self.personaggio.update_animation(delta_time) # Fa muovere le gambe al player
 
         self.lista_nemico.update_animation(delta_time)
+        self.lista_pipistrello.update_animation(delta_time)
 
         if self.up_pressed: cy += self.velocita
         if self.down_pressed: cy -= self.velocita
