@@ -1,8 +1,8 @@
 import arcade
 
 class SpriteAnimato(arcade.Sprite):
-    def __init__(self, scala: float = 1.0):
-        super().__init__(scale=scala)
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
         self.animazioni = {}          # nome -> dizionario con textures, durata_frame, loop
         self.animazione_corrente = None
         self.animazione_default = None
@@ -21,7 +21,9 @@ class SpriteAnimato(arcade.Sprite):
         loop: bool = True,
         default: bool = False,
         riga: int = 0,
+        specchia: bool = False # se true l'animazione si specchia
     ):
+
         """
         Carica uno spritesheet e registra l'animazione con il nome dato.
 
@@ -37,7 +39,14 @@ class SpriteAnimato(arcade.Sprite):
             columns=colonne,
             count=offset + num_frame,
         )
-        self._registra(nome, tutti[offset:], durata, loop, default)
+
+        frame_selezionati= tutti[offset:]
+
+        if specchia:
+            frame_selezionati = [t.flip_left_right() for t in frame_selezionati]
+
+    
+        self._registra(nome, frame_selezionati, durata, loop, default)
 
     def _registra(self, nome, textures, durata, loop, default=False):
         """Usato internamente per registrare texture già caricate."""

@@ -6,9 +6,9 @@ SCREEN_WIDTH = 700
 SCREEN_HEIGHT = 600
 
 class Enemy_general(arcade.Sprite):
-    def __init__(self, image_file, scale, velocita_nemico, vita):
+    def __init__(self, image_file, scale, velocita_nemico, vita, **kwargs):
         
-        super().__init__(image_file, scale)
+        super().__init__(filename=image_file, scale=scale, **kwargs)
 
         self.velocita_nemico = velocita_nemico
         self.vita = vita

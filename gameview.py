@@ -24,7 +24,7 @@ SCREEN_HEIGHT = 600
 
 class player(SpriteAnimato):
     def __init__(self):
-        super().__init__(scala = 2.00)
+        super().__init__(scale = 1.50)
         file_animazioni = {
             "su": "assetss/run_up.png",
             "giu": "assetss/run_down.png",
@@ -211,6 +211,8 @@ class GameView(arcade.View):
         self.lista_personaggio.update()           # Muove fisicamente il player nello schermo
         self.personaggio.update_animation(delta_time) # Fa muovere le gambe al player
 
+        self.lista_nemico.update_animation(delta_time)
+
         if self.up_pressed: cy += self.velocita
         if self.down_pressed: cy -= self.velocita
         if self.left_pressed: cx -= self.velocita
@@ -222,9 +224,9 @@ class GameView(arcade.View):
         
         # Flip orizzontale in base alla direzione
         if cx < 0: 
-            self.personaggio.scale = 2.00
+            self.personaggio.scale = 1.50
         elif cy > 0:
-            self.personaggio.scale = 2.00
+            self.personaggio.scale = 1.50
 
         #aumento del livello del personaggio
         if self.enemy_killati_per_exp >= self.exp_per_prossimo_livello:
@@ -247,25 +249,6 @@ class GameView(arcade.View):
                     self.temp_per_spawn += 2
                     self.spawn_rate -= 0.5
             
-                
-            # if self.logic_proiettile == True:
-            #     if not((self.temp_spawn_pot == 0.5) and (self.quantita_pot == 3)):
-            #         if self.temp_spawn_pot == 0.5:
-            #             self.quantita_pot += 1
-            #             print("quantita proiettili spawnati",self.quantita_pot)
-            #         else:
-            #             self.temp_spawn_pot -= 0.5
-            #             print("tempo spawn pot",self.temp_spawn_pot)
-                
-            #     self.logic_proiettile =False
-            #     # self.proiettile_lvl += 1
-
-                
-            # if self.temp_spawn_bomba == 0.5:
-            #     self.esplosione += 100 
-            # else:
-            #     self.temp_spawn_bomba -= 0.5
-        
         if self.livello_personaggio >= 5:
             self.spawn_bomba = True
 
@@ -280,6 +263,7 @@ class GameView(arcade.View):
                 
             self.logic_proiettile =False
             # self.proiettile_lvl += 1
+        
         if self.velocita <= 5.6:
             if self.logic_corsa == True:
                 print("velocità:", self.velocita)
@@ -342,7 +326,7 @@ class GameView(arcade.View):
 
             #controlla collisioni con il personaggio enemy 1
             if arcade.check_for_collision(enemy, self.personaggio):
-                self.vita_personaggio -= 100
+                self.vita_personaggio -= 5
                 enemy.vita -= self.danno
 
                 if enemy.vita <= 0:
