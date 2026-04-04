@@ -22,17 +22,14 @@ class Enemy(Enemy_general, SpriteAnimato):
                 frame_height = 48,
                 num_frame = 12,
                 colonne = 12,
-                durata = 2,
+                durata = 1,
                 riga = 0,
                 specchia = anim['flip']
             )
         
         self.direzione = "destra"
         self.change_x = 0
-        self.change_y = 0
-
-
-        
+        self.change_y = 0      
     
     def update_animation(self, delta_time):
 
@@ -41,12 +38,6 @@ class Enemy(Enemy_general, SpriteAnimato):
         elif self.change_x < 0:
             self.direzione = "sinistra"
 
-        # if self.change_x != 0 or self.change_y != 0:
         self.imposta_animazione(f"run_{self.direzione}")
-        # else:
-        #     nome_anim = f"run_{self.direzione}"
-        #     if nome_anim in self.animazioni:
-        #         self.texture = self.animazioni[f"run_{self.direzione}"]["textures"][0]
 
         super().update_animation(delta_time)    
-
