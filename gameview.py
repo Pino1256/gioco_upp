@@ -20,7 +20,7 @@ from arcade.gui import (
     UIView
 )
 
-SCREEN_WIDTH = 700
+SCREEN_WIDTH = 1000
 SCREEN_HEIGHT = 600
 
 class player(SpriteAnimato):
@@ -74,6 +74,7 @@ class GameView(arcade.View):
 
         arcade.set_background_color(arcade.color.DARK_GREEN)
 
+        # livelli abilità
         self.lvl_proiettile = 1
         self.lvl_bomba = 1
         self.lvl_corsa = 1
@@ -82,14 +83,23 @@ class GameView(arcade.View):
         self.nemico = None
         self.lista_nemico = arcade.SpriteList()
         self.numero_da_spawnare: int = 1
+        
         self.nemici_morti: int = 0
         self.nemici_da_killare: int = 5
         self.enemy_killati_per_exp: int = 0
         self.exp_per_prossimo_livello: int = 5
 
+        # pipistrello
         self.pipistrello = None
         self.lista_pipistrello = arcade.SpriteList()
+        self.numero_da_spawnare2: int = 1
 
+        # nemico 3
+        self.scheletro = None
+        self.lista_scheletro = arcade.SpriteList()
+        self.numero_da_spawnare3: int = 1
+
+        # boss 1
         self.boss1 = None
         self.lista_boss1 = arcade.SpriteList()
 
@@ -101,7 +111,7 @@ class GameView(arcade.View):
 
         self.personaggio = None
         self.lista_personaggio = arcade.SpriteList()
-        self.livello_personaggio: int = 0
+        self.livello_personaggio: int = 11
         self.livello: int = 2
         self.danno = 2
         self.danno_personaggio: int = 10
@@ -133,19 +143,26 @@ class GameView(arcade.View):
         # Timer per lo spawn dei nemici
         self.time_since_spawn = 0
         self.time_since_spawn_2 = 0
+        self.time_since_spawn_3 = 0
 
         self.potere_spawn: int = 0
         self.temp_spawn_pot = 3
         self.quantita_pot: int = 1
 
+        # tempo per sawn enemy
         self.spawn_rate = 5.0  # Un nemico ogni 5 secondi
-        self.spawn_rate_2 = 2.0 #un pipistrello ogni 2 secondi
+        self.spawn_rate_2 = 3.5 #un pipistrello ogni 2 secondi
+        self.spawn_rate_3 = 2.5
 
         self.temp_per_spawn = 2 # livello per abbreviare lo spawn rate del nemicoi 1
 
         self.temp_danno_boss1 = 1
 
         self.danno_bomba = 10
+
+        # gestione danni
+        self.ultimo_danno = 0
+        self.intervallo_danno = 1.0
 
         #camera
         self.camera = arcade.camera.Camera2D()
@@ -163,8 +180,7 @@ class GameView(arcade.View):
 
         self.personaggio = player()
         self.lista_personaggio.append(self.personaggio)
-
-    
+ 
     def bomba(self): # abilita del player bomba
 
         c4 = arcade.Sprite("./assetss/bomb.png")
@@ -192,6 +208,8 @@ class GameView(arcade.View):
         self.lista_potere.draw()
         self.lista_boss1.draw()
         self.lista_cura.draw()
+        self.lista_scheletro.draw()
+        self.lista_boss1.draw_hit_boxes(arcade.color.RED, line_thickness=2)
         for boss1 in self.lista_boss1:
             boss1.barra_vita_boss.draw_health_bar()
 
@@ -220,6 +238,7 @@ class GameView(arcade.View):
 
         self.lista_nemico.update_animation(delta_time)
         self.lista_pipistrello.update_animation(delta_time)
+        self.lista_scheletro.update_animation(delta_time)
 
         if self.up_pressed: cy += self.velocita
         if self.down_pressed: cy -= self.velocita
@@ -289,9 +308,11 @@ class GameView(arcade.View):
             self.logic_bomba = False
             
         # Livello del personaggio + nemici in più
-        if self.livello_personaggio == self.livello:
+        if self.livello_personaggio >= self.livello:
             self.livello = self.livello_personaggio + 2
             self.numero_da_spawnare += 2
+            self.numero_da_spawnare2 += 2
+            self.time_since_spawn_3 += 2
 
         # Spawn dei nemici 1
         self.time_since_spawn += delta_time
@@ -303,12 +324,21 @@ class GameView(arcade.View):
 
         # #Spawn dei nemici 2
         self.time_since_spawn_2 += delta_time
-        if (self.livello_personaggio >= 10) and (self.time_since_spawn_2 >= self.spawn_rate_2):
-            from enemy_2 import Enemy_2
-            enemy_2 = Enemy_2()
-            self.lista_pipistrello.append(enemy_2)
+        if (self.livello_personaggio >= 11) and (self.time_since_spawn_2 >= self.spawn_rate_2):
+            for _ in range(self.numero_da_spawnare2):
+                from enemy_2 import Enemy_2
+                enemy_2 = Enemy_2()
+                self.lista_pipistrello.append(enemy_2)
             self.time_since_spawn_2 = 0
-
+        
+        self.time_since_spawn_3 += delta_time
+        if (self.livello_personaggio >= 11) and (self.time_since_spawn_3 >= self.spawn_rate_2):
+            for _ in range(self.numero_da_spawnare3):
+                from enemy3 import Enemy3
+                enemy_3 = Enemy3()
+                self.lista_scheletro.append(enemy_3)
+            self.time_since_spawn_3 = 0
+            
         #Spawn boss1
         if (self.livello_personaggio >= 10) and (self.spawn_boss1 == True ):
             boss1 = Boss1()
@@ -321,6 +351,9 @@ class GameView(arcade.View):
 
         for enemy_2 in self.lista_pipistrello:
             enemy_2.movimento_verso_giocatore(self.personaggio.center_x, self.personaggio.center_y)
+
+        for enemy_3 in self.lista_scheletro:
+            enemy_3.movimento_verso_giocatore(self.personaggio.center_x, self.personaggio.center_y)
         
         for boss1 in self.lista_boss1:
             boss1.movimento_verso_giocatore(self.personaggio.center_x, self.personaggio.center_y)
@@ -330,35 +363,63 @@ class GameView(arcade.View):
 
         self.exp.cur_exp = self.enemy_killati_per_exp 
 
-        for enemy in self.lista_nemico[:]:
+        self.ultimo_danno += delta_time
+        tutte_enmy_list = [self.lista_nemico, self.lista_pipistrello, self.lista_scheletro]
 
-            #controlla collisioni con il personaggio enemy 1
-            if arcade.check_for_collision(enemy, self.personaggio):
-                self.vita_personaggio -= 5
-                enemy.vita -= self.danno
-
-                if enemy.vita <= 0:
-
-                    self.spawn_cura(enemy.center_x, enemy.center_y)
-
-                    enemy.kill()
-                    self.nemici_morti += 1
-                    self.enemy_killati_per_exp += 1
+        if self.ultimo_danno >= self.intervallo_danno:
+            collisione = False
+            for lista in tutte_enmy_list:
+                nemici_toccati = arcade.check_for_collision_with_list(self.personaggio, lista)
+                if nemici_toccati:
+                    danno_personaggio = 5
+                    if lista == self.lista_pipistrello:
+                        danno_personaggio = 10
+                    elif lista == self.lista_scheletro:
+                        danno_personaggio = 15
                 
-        #controlla collisioni con il personaggio enemy 2
-        for pipistrello in self.lista_pipistrello[:]:
+                    self.vita_personaggio -= danno_personaggio
+                    collisione = True
+                
+                    for _ in nemici_toccati:
+                        _.vita -= self.danno
+                        
+                        if _.vita <= 0:
+                            self.spawn_cura(_.center_x, _.center_y)
+                            _.kill()
+                            self.nemici_morti += 1
+                            self.enemy_killati_per_exp += 1
 
-            if arcade.check_for_collision(pipistrello, self.personaggio):
-                self.vita_personaggio -= 10
-                pipistrello.vita -= self.danno
 
-                if pipistrello.vita <= 0:
 
-                    self.spawn_cura(pipistrello.center_x, pipistrello.center_y)
+        # for enemy in self.lista_nemico[:]:
 
-                    pipistrello.kill()
-                    self.nemici_morti += 1
-                    self.enemy_killati_per_exp += 1
+        #     #controlla collisioni con il personaggio enemy 1
+        #     if arcade.check_for_collision(enemy, self.personaggio):
+        #         self.vita_personaggio -= 5
+        #         enemy.vita -= self.danno
+
+        #         if enemy.vita <= 0:
+
+        #             self.spawn_cura(enemy.center_x, enemy.center_y)
+
+        #             enemy.kill()
+        #             self.nemici_morti += 1
+        #             self.enemy_killati_per_exp += 1
+                
+        # #controlla collisioni con il personaggio enemy 2
+        # for pipistrello in self.lista_pipistrello[:]:
+
+        #     if arcade.check_for_collision(pipistrello, self.personaggio):
+        #         self.vita_personaggio -= 10
+        #         pipistrello.vita -= self.danno
+
+        #         if pipistrello.vita <= 0:
+
+        #             self.spawn_cura(pipistrello.center_x, pipistrello.center_y)
+
+        #             pipistrello.kill()
+        #             self.nemici_morti += 2
+        #             self.enemy_killati_per_exp += 2
         
         #collisioni con boss 1
         self.temp_danno_boss1 += delta_time
@@ -372,7 +433,22 @@ class GameView(arcade.View):
                 if boss1.vita <= 0:
                     boss1.kill()
                     self.nemici_morti += 10
-                    self.enemy_killati_per_exp += 10               
+                    self.enemy_killati_per_exp += 10  
+
+        # collisioni con enmy 3
+        for scheletro in self.lista_scheletro[:]:
+
+            if arcade.check_for_collision(scheletro, self.personaggio):
+                self.vita_personaggio -= 10
+                scheletro.vita -= self.danno
+
+                if scheletro.vita <= 0:
+
+                    self.spawn_cura(scheletro.center_x, scheletro.center_y)
+
+                    scheletro.kill()
+                    self.nemici_morti += 3
+                    self.enemy_killati_per_exp += 3   
 
         self.lista_potere.update()
         
@@ -407,8 +483,8 @@ class GameView(arcade.View):
                         self.spawn_cura(pipistrello.center_x, pipistrello.center_y)
                         
                         pipistrello.kill()
-                        self.nemici_morti += 1
-                        self.enemy_killati_per_exp += 1
+                        self.nemici_morti += 2
+                        self.enemy_killati_per_exp += 2
 
                     proiettile.kill()
 
@@ -438,6 +514,20 @@ class GameView(arcade.View):
                         self.enemy_killati_per_exp += 10   
                     proiettile.kill()
 
+            for scheletro in self.lista_scheletro[:]:
+                if arcade.check_for_collision(proiettile, scheletro):
+                    scheletro.vita -= proiettile.danno_proiettile
+
+                    if scheletro.vita <= 0:
+
+                        self.spawn_cura(scheletro.center_x, scheletro.center_y)
+                        
+                        scheletro.kill()
+                        self.nemici_morti += 3
+                        self.enemy_killati_per_exp += 3
+
+                    proiettile.kill()
+
         #esplosione bomba
         for c4 in self.lista_bomba:
             if tempo_attuale - c4.time_created >= 2:
@@ -453,8 +543,8 @@ class GameView(arcade.View):
                             self.spawn_cura(pipistrello.center_x, pipistrello.center_y)
                             
                             pipistrello.kill()
-                            self.nemici_morti += 1
-                            self.enemy_killati_per_exp += 1
+                            self.nemici_morti += 2
+                            self.enemy_killati_per_exp += 2
 
                 for enemy in self.lista_nemico[:]:
                     distanza = arcade.get_distance_between_sprites(c4, enemy)
@@ -479,6 +569,19 @@ class GameView(arcade.View):
                             self.nemici_morti += 10
                             self.enemy_killati_per_exp += 10
 
+                for scheletro in self.lista_nemico[:]:
+                    distanza = arcade.get_distance_between_sprites(c4, scheletro)
+                    if distanza <= self.esplosione:
+                        scheletro.vita -= self.danno_bomba
+
+                        if scheletro.vita <= 0:
+                            
+                            self.spawn_cura(scheletro.center_x, scheletro.center_y)
+                            
+                            scheletro.kill()
+                            self.nemici_morti += 1
+                            self.enemy_killati_per_exp += 1
+
                 c4.remove_from_sprite_lists()
         
         #gestione della cura 
@@ -492,16 +595,10 @@ class GameView(arcade.View):
 
             cure.kill()
 
-        # if arcade.check_for_collision(cura, self.personaggio):
-        #     self.vita_personaggio += cura.quant_cura
-
         if self.vita_personaggio <= 0:
             from gameover import GameOver
             over = GameOver()
             self.window.show_view(over)
-        
-        # if self.vita_personaggio <= 0:
-        #     arcade.close_window()
 
         self.camera.position = self.personaggio.center_x, self.personaggio.center_y                
 
