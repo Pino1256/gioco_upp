@@ -50,6 +50,8 @@ class player(SpriteAnimato):
         self.change_x = 0
         self.change_y = 0
     
+        self.ultima_animazione = ""
+    
     def update_animation(self, delta_time):
         if self.change_y > 0:
             self.direzione = "su"
@@ -62,7 +64,12 @@ class player(SpriteAnimato):
 
         if self.change_x != 0 or self.change_y != 0:
             self.imposta_animazione(f"run_{self.direzione}")
+            nuova_anim = f"run_{self.direzione}"
+            if self.ultima_animazione != nuova_anim:
+                self.imposta_animazione(nuova_anim)
+                self.ultima_animazione = nuova_anim
         else:
+            self.ultima_animazione = ""
             nome_anim = f"run_{self.direzione}"
             if nome_anim in self.animazioni:
                 self.texture = self.animazioni[f"run_{self.direzione}"]["textures"][0]
