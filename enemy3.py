@@ -5,7 +5,7 @@ from sprite_animato import SpriteAnimato
 
 class Enemy3(Enemy_general, SpriteAnimato):
     def __init__(self):
-        Enemy_general.__init__(self, "./assetss/scheletro.png", scale = 1, velocita_nemico = 3.20, vita= 30 )
+        Enemy_general.__init__(self, "./assetss/scheletro.png", scale = 1, velocita_nemico = 3.20, vita= 30)
         SpriteAnimato.__init__(self, scale = 1)
 
         file_animazioni = [

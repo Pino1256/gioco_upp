@@ -31,7 +31,8 @@ class player(SpriteAnimato):
             "su": "assetss/run_up.png",
             "giu": "assetss/run_down.png",
             "destra": "assetss/run_right.png",
-            "sinistra": "assetss/run_left.png"
+            "sinistra": "assetss/run_left.png",
+            "fermo" : "assetss/run_idle.png"
         }
     
         for dir, percorso in file_animazioni.items(): #dir = direzione
@@ -61,6 +62,8 @@ class player(SpriteAnimato):
             self.direzione = "destra"
         elif self.change_x < 0:
             self.direzione = "sinistra"
+        elif self.change_x == 0 and self.change_y == 0:
+            self.direzione = "fermo"
 
         if self.change_x != 0 or self.change_y != 0:
             self.imposta_animazione(f"run_{self.direzione}")
@@ -68,11 +71,11 @@ class player(SpriteAnimato):
             if self.ultima_animazione != nuova_anim:
                 self.imposta_animazione(nuova_anim)
                 self.ultima_animazione = nuova_anim
+            
         else:
-            self.ultima_animazione = ""
-            nome_anim = f"run_{self.direzione}"
-            if nome_anim in self.animazioni:
-                self.texture = self.animazioni[f"run_{self.direzione}"]["textures"][0]
+            self.direzione = "fermo"
+            self.imposta_animazione(f"run_{self.direzione}")
+            nuova_anim = f"run_{self.direzione}"         
 
         super().update_animation(delta_time)    
 
@@ -388,7 +391,10 @@ class GameView(arcade.View):
             for lista in tutte_enmy_list:
                 nemici_toccati = arcade.check_for_collision_with_list(self.personaggio, lista)
                 if nemici_toccati:
-                    danno_personaggio = 5
+                    if self.enemy.logic_time1 == False:
+                        danno_personaggio = 5
+                        self.enemy.logic_time1 = True
+
                     if lista == self.lista_pipistrello:
                         danno_personaggio = 10
                     elif lista == self.lista_scheletro:

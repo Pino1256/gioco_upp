@@ -5,7 +5,7 @@ from sprite_animato import SpriteAnimato
 
 class Enemy_2(Enemy_general, SpriteAnimato):
     def __init__(self):
-        Enemy_general.__init__(self, "./assetss/pipistrello.png", scale = 2, velocita_nemico = 3, vita= 20 )
+        Enemy_general.__init__(self, "./assetss/pipistrello.png", scale = 2, velocita_nemico = 3, vita= 20)
         SpriteAnimato.__init__(self, scale = 2)
 
         file_animazioni = [
@@ -37,4 +37,4 @@ class Enemy_2(Enemy_general, SpriteAnimato):
 
         self.imposta_animazione(f"run_{self.direzione}")
 
-        super().update_animation(delta_time)   
+        super().update_animation(delta_time) 
