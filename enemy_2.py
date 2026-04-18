@@ -8,6 +8,10 @@ class Enemy_2(Enemy_general, SpriteAnimato):
         Enemy_general.__init__(self, "./assetss/pipistrello.png", scale = 2, velocita_nemico = 3, vita= 20)
         SpriteAnimato.__init__(self, scale = 2)
 
+        self.cooldown = 1.0
+        self.time_since_last_hit = 0.0
+        self.time_since_last_hit_player = 0.0
+
         file_animazioni = [
             {"nome": "destra",   "file": "assetss/run_but.png", "flip": True},
             {"nome": "sinistra", "file": "assetss/run_but.png", "flip": False},
@@ -38,3 +42,11 @@ class Enemy_2(Enemy_general, SpriteAnimato):
         self.imposta_animazione(f"run_{self.direzione}")
 
         super().update_animation(delta_time) 
+    
+    def can_take_damage(self):
+        return self.time_since_last_hit >= self.cooldown
+    
+    def take_damage(self, amount):
+        if self.can_take_damage():
+            self.vita -= amount 
+            self.time_since_last_hit = 0.0

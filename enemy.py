@@ -10,6 +10,7 @@ class Enemy(Enemy_general, SpriteAnimato):
 
         self.cooldown = 1.0
         self.time_since_last_hit = 0.0
+        self.time_since_last_hit_player = 0.0
 
         file_animazioni = [
             {"nome": "destra",   "file": "assetss/run_slime.png", "flip": False},
@@ -29,9 +30,7 @@ class Enemy(Enemy_general, SpriteAnimato):
                 specchia = anim['flip']
             )
         
-        self.direzione = "destra"
-        self.change_x = 0
-        self.change_y = 0      
+        self.direzione = "destra"   
     
     def update_animation(self, delta_time):
 
@@ -46,11 +45,18 @@ class Enemy(Enemy_general, SpriteAnimato):
 
     def update(self, delta_time):
         self.time_since_last_hit += delta_time
+        self.time_since_last_hit_player += delta_time
+        
+        super().update()
     
     def can_take_damage(self):
         return self.time_since_last_hit >= self.cooldown
     
     def take_damage(self, amount):
-        if self.can_take_damage():
-            self.healt -= amount
+        # if self.can_take_damage():
+        #     self.vita -= amount 
+        #     self.time_since_last_hit = 0.0
+
+        if self.time_since_last_hit >= self.cooldown:
+            self.vita -= amount 
             self.time_since_last_hit = 0.0

@@ -6,8 +6,8 @@ from sprite_animato import SpriteAnimato
 class Boss1(Enemy_general, SpriteAnimato):
     def __init__(self):
 
-        Enemy_general.__init__(self, "./assetss/run_golem.png", scale = 0.2, velocita_nemico = 2, vita = 50)
-        SpriteAnimato.__init__(self, scale = 1)
+        Enemy_general.__init__(self, "./assetss/run_golem.png", scale = 1.0, velocita_nemico = 2, vita = 50)
+        SpriteAnimato.__init__(self, scale = 2)
 
         file_animazioni = [
             {"nome": "destra",   "file": "assetss/run_golem.png", "flip": False},
