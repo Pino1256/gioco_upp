@@ -12,25 +12,26 @@ class Enemy3(Enemy_general, SpriteAnimato):
         self.time_since_last_hit = 0.0
         self.time_since_last_hit_player = 0.0
 
-        file_animazioni = [
-            {"nome": "destra",   "file": "assetss/scheletro.png", "flip": False},
-            {"nome": "sinistra", "file": "assetss/scheletro.png", "flip": True},
-        ]
+        file_animazioni = {
+            "destra": "assetss/run_scheletro.png",
+            "sinistra" : "assetss/run_scheletr2.png"
+        }
     
-        for anim in file_animazioni: 
+        for dir, percorso in file_animazioni.items(): 
             self.aggiungi_animazione(
-                nome = f"run_{anim['nome']}",
-                percorso = anim['file'],
+                nome = f"run_{dir}",
+                percorso = percorso,
                 frame_width = 96,
                 frame_height = 64,
                 num_frame = 10,
                 colonne = 10,
                 durata = 1,
                 riga = 0,
-                specchia = anim['flip']
             )
         
         self.direzione = "destra"
+
+        self.ultima_animazione = ""
 
     
     def update_animation(self, delta_time):
@@ -40,7 +41,12 @@ class Enemy3(Enemy_general, SpriteAnimato):
         elif self.change_x < 0:
             self.direzione = "sinistra"
 
-        self.imposta_animazione(f"run_{self.direzione}")
+        if self.change_x != 0 or self.change_y != 0:
+            self.imposta_animazione(f"run_{self.direzione}")
+            nuova_anim = f"run_{self.direzione}"
+            if self.ultima_animazione != nuova_anim:
+                self.imposta_animazione(nuova_anim)
+                self.ultima_animazione = nuova_anim
 
         super().update_animation(delta_time)   
 

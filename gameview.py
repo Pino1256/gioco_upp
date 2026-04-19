@@ -155,7 +155,7 @@ class GameView(arcade.View):
         self.M_pressed = False
 
         self.velocita = 4.7
-        self.vita_personaggio: int = 100000000
+        self.vita_personaggio: int = 100
 
         # Timer per lo spawn dei nemici
         self.time_since_spawn = 0
@@ -298,9 +298,9 @@ class GameView(arcade.View):
 
             if self.livello_personaggio >= self.livello_per_vita:
                 self.livello_per_vita += 3
-                if self.vita_personaggio >= self.max_health:
+                if self.vita_personaggio >= self.barra_vita.max_health:
                     self.vita_personaggio += 20
-                self.max_health += 20  
+                self.barra_vita.max_health += 20  
 
             if self.livello_personaggio >= 21:
                 self.logic_spawn_nemy1 = False
@@ -390,6 +390,7 @@ class GameView(arcade.View):
 
         for enemy_3 in self.lista_scheletro:
             enemy_3.movimento_verso_giocatore(self.personaggio.center_x, self.personaggio.center_y)
+            enemy_3.update_animation(delta_time)
         
         for boss1 in self.lista_boss1:
             boss1.movimento_verso_giocatore(self.personaggio.center_x, self.personaggio.center_y)
@@ -593,8 +594,8 @@ class GameView(arcade.View):
         for cure in cure_colpite:
             self.vita_personaggio += cure.quant_cura
 
-            if self.vita_personaggio >= 100:
-                self.vita_personaggio = 100
+            if self.vita_personaggio >= self.barra_vita.max_health:
+                self.vita_personaggio = self.barra_vita.max_health
 
             cure.kill()
         
