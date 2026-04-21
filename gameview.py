@@ -130,7 +130,7 @@ class GameView(arcade.View):
         self.personaggio = None
         self.lista_personaggio = arcade.SpriteList()
         self.logic_spawn_nemy1: bool = True
-        self.livello_personaggio: int = 0
+        self.livello_personaggio: int = 21
         self.livello: int = 2
         self.danno = 2
         self.danno_personaggio: int = 10

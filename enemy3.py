@@ -2,10 +2,15 @@ import arcade
 from nemico_globale import Enemy_general
 from gameview import GameView
 from sprite_animato import SpriteAnimato
+import random
 
 class Enemy3(Enemy_general, SpriteAnimato):
-    def __init__(self):
-        Enemy_general.__init__(self, "./assetss/scheletro.png", scale = 1, velocita_nemico = 3.20, vita= 30)
+    def __init__(self, edge=None):
+
+        if edge is None:
+            edge = random.randint(0, 3)
+
+        Enemy_general.__init__(self, "./assetss/scheletro.png", scale = 1, velocita_nemico = 3.20, vita= 30, edge = edge)
         SpriteAnimato.__init__(self, scale = 1)
 
         self.cooldown = 0.2
