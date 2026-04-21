@@ -13,10 +13,6 @@ class Enemy_general(arcade.Sprite):
         self.velocita_nemico = velocita_nemico
         self.vita = vita
         self.margin = 50
-<<<<<<< HEAD
-=======
-        # self.edge = random.randint(0,3)
->>>>>>> 83231cda7ef08096f5f6863b515cd258cb4a8c9e
     
         self.edge = edge if edge is not None else random.randint(0, 3)
 
