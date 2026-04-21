@@ -5,6 +5,7 @@ import time
 
 from enemy import Enemy
 from bullet import Bullet
+from gira import AbilitaGira
 
 from sprite_animato import SpriteAnimato
 from cura import Cura
@@ -70,8 +71,7 @@ class player(SpriteAnimato):
             nuova_anim = f"run_{self.direzione}"
             if self.ultima_animazione != nuova_anim:
                 self.imposta_animazione(nuova_anim)
-                self.ultima_animazione = nuova_anim
-            
+                self.ultima_animazione = nuova_anim      
         else:
             self.direzione = "fermo"
             self.imposta_animazione(f"run_{self.direzione}")
@@ -84,6 +84,8 @@ class GameView(arcade.View):
         super().__init__()
 
         arcade.set_background_color(arcade.color.DARK_GREEN)
+
+        self.lista_spada = arcade.SpriteList()
 
         # livelli abilità
         self.lvl_proiettile = 1
@@ -135,6 +137,7 @@ class GameView(arcade.View):
         self.logic_proiettile = False
         self.logic_bomba = False
         self.logic_corsa = False
+        self.aumento_spada = False
 
         self.spawn_bomba = False
 
@@ -166,6 +169,13 @@ class GameView(arcade.View):
         self.temp_spawn_pot = 3
         self.quantita_pot: int = 1
 
+        self.logic_spada = True
+        self.time_spada = 0
+        self.durata_spada = 10
+        self.cooldown_spada = 7
+        self.quantita_spada = 1
+        self.cooldown_timer = 0
+
         # tempo per sawn enemy
         self.spawn_rate = 5.0  # Un nemico ogni 5 secondi
         self.spawn_rate_2 = 3.5 #un pipistrello ogni 2 secondi
@@ -194,7 +204,7 @@ class GameView(arcade.View):
         
 
     def setup(self): # player
-
+        
         self.personaggio = player()
         self.lista_personaggio.append(self.personaggio)
  
@@ -209,12 +219,12 @@ class GameView(arcade.View):
 
     def spawn_cura(self, x, y):
     
-        if random.random() <= 0.1:
+        if random.random() <= 0.03:
             nuova_cura = Cura(x, y)
             self.lista_cura.append(nuova_cura)
     
     def spawn_ingrandimento(self, x, y):
-        if random.random() <= 0.1:
+        if random.random() <= 0.03:
             nuovo_ingrandimento = Ingrandimento(x, y)
             self.lista_ingrandimento.append(nuovo_ingrandimento)
 
@@ -227,6 +237,7 @@ class GameView(arcade.View):
         self.lista_personaggio.draw()
         self.lista_pipistrello.draw()
         self.lista_bomba.draw()
+        self.lista_spada.draw()
         self.lista_potere.draw()
         self.lista_boss1.draw()
         self.lista_cura.draw()
@@ -257,6 +268,8 @@ class GameView(arcade.View):
 
         self.lista_personaggio.update()           # Muove fisicamente il player nello schermo
         self.personaggio.update_animation(delta_time) # Fa muovere le gambe al player
+
+        self.lista_spada.update(delta_time)
 
         self.lista_nemico.update_animation(delta_time)
         self.lista_pipistrello.update_animation(delta_time)
@@ -295,6 +308,8 @@ class GameView(arcade.View):
             self.bullet = Bullet(self.personaggio)
             self.bullet.danno_proiettile = self.bullet.danno_proiettile*1.20
             self.danno_bomba = self.danno_bomba*1.20
+            self.spada = AbilitaGira(self.personaggio)
+            self.spada.danno_spada = self.spada.danno_spada*1.20
 
             if self.livello_personaggio >= self.livello_per_vita:
                 self.livello_per_vita += 3
@@ -317,27 +332,25 @@ class GameView(arcade.View):
             if not((self.temp_spawn_pot == 0.5) and (self.quantita_pot == 3)):
                 if self.temp_spawn_pot == 0.5:
                     self.quantita_pot += 1
-                    print("quantita proiettili spawnati",self.quantita_pot)
                 else:
                     self.temp_spawn_pot -= 0.5
-                    print("tempo spawn pot",self.temp_spawn_pot)
                 
             self.logic_proiettile =False
-            # self.proiettile_lvl += 1
         
+        if self.aumento_spada == True and self.quantita_spada<= 4:
+            self.quantita_spada += 1
+            self.aumento_spada = False
+
         if self.velocita <= 5.6:
             if self.logic_corsa == True:
-                print("velocità:", self.velocita)
                 self.velocita += 0.3
             self.logic_corsa = False
 
         if self.logic_bomba == True and self.spawn_bomba == True:
             if self.temp_spawn_bomba == 0.5:
                 self.esplosione += 100
-                print("esplosione", self.esplosione) 
             else:
                 self.temp_spawn_bomba -= 0.5
-                print("tempo spawn bomba", self.temp_spawn_bomba)
             
             self.logic_bomba = False
             
@@ -461,10 +474,30 @@ class GameView(arcade.View):
                 proiettile = Bullet(self.personaggio)
                 self.lista_potere.append(proiettile)
             self.potere_spawn = 0
-
-        self.bomba_spawn += delta_time
-
+        
+        #spawn potere2
+        # self.time_spada += delta_time
+         
+        if self.logic_spada:
+            self.time_spada += delta_time
+            if self.time_spada >= self.durata_spada:
+                self.lista_spada.clear()
+                self.logic_spada = False
+                self.cooldown_timer = 0
+                self.time_spada = 0
+        else:
+            self.cooldown_timer += delta_time
+            if self.cooldown_timer >= self.cooldown_spada:
+                for i in range(self.quantita_spada):
+                    spada = AbilitaGira(self.personaggio)
+                    spada.angolo = (360 / self.quantita_spada) * i
+                    self.lista_spada.append(spada)
+                
+                self.logic_spada = True
+                self.time_spada = 0
+        
         # spawn bomba
+        self.bomba_spawn += delta_time
         if self.spawn_bomba == True:
             if self.bomba_spawn >= self.temp_spawn_bomba:
                 self.bomba()
@@ -589,6 +622,43 @@ class GameView(arcade.View):
 
                 c4.remove_from_sprite_lists()
         
+        for spada in self.lista_spada[:]:
+            for enemy in self.lista_nemico[:]:
+                if arcade.check_for_collision(spada, enemy):
+                    enemy.vita -= spada.danno_spada
+
+                    if enemy.vita <= 0:
+
+                        self.spawn_cura(enemy.center_x, enemy.center_y)
+                        self.spawn_ingrandimento(enemy.center_x, enemy.center_y)
+
+                        enemy.kill()
+                        self.nemici_morti += 1
+                        self.enemy_killati_per_exp += 1
+            
+            for boss1 in self.lista_boss1[:]:
+                if arcade.check_for_collision(spada, boss1):
+                    boss1.vita -= spada.danno_spada
+                    boss1.take_damage(spada.danno_spada)
+
+                    if boss1.vita <= 0:
+                        boss1.kill()
+                        self.nemici_morti += 10
+                        self.enemy_killati_per_exp += 10   
+
+            for scheletro in self.lista_scheletro[:]:
+                if arcade.check_for_collision(spada, scheletro):
+                    scheletro.vita -= spada.danno_spada
+
+                    if scheletro.vita <= 0:
+
+                        self.spawn_cura(scheletro.center_x, scheletro.center_y)
+                        self.spawn_ingrandimento(scheletro.center_x, scheletro.center_y)
+                        
+                        scheletro.kill()
+                        self.nemici_morti += 3
+                        self.enemy_killati_per_exp += 3
+
         #gestione della cura 
         cure_colpite = arcade.check_for_collision_with_list(self.personaggio, self.lista_cura)
         for cure in cure_colpite:
@@ -644,6 +714,4 @@ class GameView(arcade.View):
         elif tasto in (arcade.key.LEFT, arcade.key.A):
             self.left_pressed = False
         elif tasto in (arcade.key.RIGHT, arcade.key.D):
-            self.right_pressed = False
-        elif tasto == arcade.key.Q:
-            self.Q_pressed = False    
+            self.right_pressed = False   

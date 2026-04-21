@@ -7,7 +7,7 @@ SCREEN_HEIGHT = 600
 class MenuLvlView (arcade.View):
     def __init__(self, game_view):
         super().__init__()
-        self.game_view = game_view #riferimento della partita in corso
+        self.game_view = game_view # partita in corso
 
 
     def on_draw(self):
@@ -25,25 +25,27 @@ class MenuLvlView (arcade.View):
         arcade.draw_text("Premi C: + Livello Corsa", SCREEN_WIDTH // 2, 300,
                          arcade.color.WHITE, font_size=20, anchor_x="center")
         
+        arcade.draw_text("Premi V: + Livello spada", SCREEN_WIDTH // 2, 200,
+                         arcade.color.WHITE, font_size=20, anchor_x="center")
+        
 
     def on_key_press(self, key, modifiers):
         if key == arcade.key.Z:
-            # if self.game_view.proiettile_lvl <= 7:
-                # aggiungere +1 lvl del proiettile
-            # self.game_view.lvl_proiettile +=1
+
             self.game_view.logic_proiettile = True
-            # self.game_view.proiettile_lvl += 1
             self.window.show_view(self.game_view)
 
         if key == arcade.key.X:
 
-            # aggiungere +1 lvl della bomba
             self.game_view.logic_bomba = True
             self.window.show_view(self.game_view)
             
         if key == arcade.key.C:
 
-            # aggiungere +1 lvl della corsa
             self.game_view.logic_corsa = True
             self.window.show_view(self.game_view)
-            
+        
+        if key == arcade.key.V:
+
+            self.game_view.aumento_spada = True
+            self.window.show_view(self.game_view)
