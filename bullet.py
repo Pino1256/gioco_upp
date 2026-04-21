@@ -3,7 +3,7 @@ import random
 import math
 import time
 
-SCREEN_WIDTH = 700
+SCREEN_WIDTH = 1000
 SCREEN_HEIGHT = 600
 
 class Bullet(arcade.Sprite):

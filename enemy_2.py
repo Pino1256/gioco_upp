@@ -2,11 +2,19 @@ import arcade
 from nemico_globale import Enemy_general
 from gameview import GameView
 from sprite_animato import SpriteAnimato
+import random
 
 class Enemy_2(Enemy_general, SpriteAnimato):
-    def __init__(self):
-        Enemy_general.__init__(self, "./assetss/pipistrello.png", scale = 2, velocita_nemico = 3, vita= 20)
+    def __init__(self, edge = None):
+
+        if edge is None:
+            edge = random.randint(0, 3)
+        
+
+        Enemy_general.__init__(self, "./assetss/pipistrello.png", scale = 2, velocita_nemico = 3, vita= 20, edge = edge)
         SpriteAnimato.__init__(self, scale = 2)
+
+
 
         self.cooldown = 1.0
         self.time_since_last_hit = 0.0

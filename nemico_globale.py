@@ -2,18 +2,19 @@ import arcade
 import random
 import math
 
-SCREEN_WIDTH = 700
+SCREEN_WIDTH = 1000
 SCREEN_HEIGHT = 600
 
 class Enemy_general(arcade.Sprite):
-    def __init__(self, image_file, scale, velocita_nemico, vita, **kwargs):
+    def __init__(self, image_file, scale, velocita_nemico, vita, edge=None, **kwargs):
         
         super().__init__(filename=image_file, scale=scale, **kwargs)
 
         self.velocita_nemico = velocita_nemico
         self.vita = vita
-        self.margin = -50
-        self.edge = random.randint(0,3)
+        self.margin = 50
+    
+        self.edge = edge if edge is not None else random.randint(0, 3)
 
         if self.edge == 0:  # alto
             self.center_x = random.randint(self.margin, SCREEN_WIDTH - self.margin)
