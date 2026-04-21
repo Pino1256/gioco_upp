@@ -188,7 +188,6 @@ class GameView(arcade.View):
         self.danno_bomba = 10
 
         # gestione danni
-        # self.ultimo_danno = 0
         self.intervallo_danno = 1.0
 
         #camera
@@ -242,7 +241,6 @@ class GameView(arcade.View):
         self.lista_boss1.draw()
         self.lista_cura.draw()
         self.lista_scheletro.draw()
-        self.lista_boss1.draw_hit_boxes(arcade.color.RED, line_thickness=2)
         for boss1 in self.lista_boss1:
             boss1.barra_vita_boss.draw_health_bar()
 
@@ -434,11 +432,6 @@ class GameView(arcade.View):
                     # nemico.take_damage(self.danno)
                     nemico.time_since_last_hit_player = 0.0
                     # nemico.time_since_last_hit = 0.0
-                    
-                
-                # for _ in nemici_toccati:
-                # if 
-                # nemico.vita -= self.danno
                         
                 if nemico.vita <= 0:
                     self.spawn_cura(nemico.center_x, nemico.center_y)
