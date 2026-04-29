@@ -315,7 +315,7 @@ class GameView(arcade.View):
                     self.vita_personaggio += 20
                 self.barra_vita.max_health += 20  
 
-            if self.livello_personaggio >= 21:
+            if self.livello_personaggio >= 20:
                 self.logic_spawn_nemy1 = False
 
             if self.spawn_rate > 0.5:
